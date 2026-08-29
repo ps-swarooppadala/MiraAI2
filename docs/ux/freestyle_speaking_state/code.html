@@ -1,0 +1,251 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mira.ai - Freestyle Speaking</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#cba72f",
+                        "surface-container-highest": "#dae5e0",
+                        "on-tertiary-container": "#4e3d00",
+                        "primary-fixed-dim": "#a3d0be",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-container": "#e5f0eb",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#d1ddd8",
+                        "on-surface": "#141e1b",
+                        "surface-bright": "#f1fcf7",
+                        "surface-container-high": "#dfebe6",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#e8f3ee",
+                        "surface": "#f1fcf7",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "on-secondary-fixed-variant": "#474744",
+                        "background": "#f1fcf7",
+                        "inverse-primary": "#a3d0be",
+                        "secondary": "#5e5e5c",
+                        "secondary-fixed-dim": "#c8c6c3",
+                        "primary": "#00241a",
+                        "on-surface-variant": "#414845",
+                        "surface-tint": "#3c6657",
+                        "tertiary-fixed": "#ffe088",
+                        "on-tertiary-fixed": "#241a00",
+                        "surface-container-low": "#ebf6f1",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#244e40",
+                        "secondary-fixed": "#e4e2de",
+                        "on-secondary-container": "#636360",
+                        "outline-variant": "#c0c8c3",
+                        "outline": "#717974",
+                        "on-background": "#141e1b",
+                        "secondary-container": "#e1dfdc",
+                        "inverse-surface": "#28332f",
+                        "on-primary-container": "#7aa694",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#002117",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#0e3b2e",
+                        "primary-fixed": "#bfecd9",
+                        "tertiary": "#735c00",
+                        "surface-variant": "#dae5e0",
+                        "on-secondary-fixed": "#1b1c1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "12px",
+                        "gutter": "16px",
+                        "container-padding": "24px",
+                        "stack-lg": "40px",
+                        "stack-md": "24px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["DM Sans"],
+                        "hero": ["Playfair Display"],
+                        "label-sm": ["DM Sans"],
+                        "headline-md": ["Playfair Display"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "label-md": ["DM Sans"],
+                        "body-lg": ["DM Sans"],
+                        "headline-lg": ["Playfair Display"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "hero": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .caption-fade-in {
+            animation: fadeInText 2s ease-in-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        @keyframes fadeInText {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-primary-container h-screen w-screen overflow-hidden flex flex-col relative text-on-primary">
+<!-- Top Context Chip -->
+<div class="absolute top-12 left-0 right-0 flex justify-center z-20 px-container-padding">
+<div class="bg-surface-container-highest/10 backdrop-blur-md border border-white/10 rounded-full px-6 py-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-container" style="font-size: 16px;">psychology</span>
+<span class="font-label-md text-label-md text-on-primary/90 tracking-wide uppercase">Focusing on breath and shoulder tension</span>
+</div>
+</div>
+<!-- Center AI Orb (Animation) -->
+<div class="flex-1 flex items-center justify-center relative z-10 -mt-12">
+<div class="w-64 h-64 md:w-96 md:h-96 relative">
+<!-- STITCH_SHADER_START:ANIMATION_9 class="absolute inset-0 w-full h-full rounded-full mix-blend-screen opacity-90" -->
+<div class="absolute inset-0 w-full h-full rounded-full mix-blend-screen opacity-90" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_9" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_9');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+varying vec2 v_texCoord;
+
+void main() {
+    vec2 uv = v_texCoord - 0.5;
+    uv.x *= u_resolution.x / u_resolution.y;
+    
+    // Speaking state: faster, more energetic pulse with "ripples"
+    float pulse = 0.55 + 0.15 * sin(u_time * 3.0);
+    float dist = length(uv);
+    
+    // Ripple effect
+    float ripple = 0.05 * sin(dist * 20.0 - u_time * 5.0);
+    float active_dist = dist + ripple;
+    
+    // Core orb
+    float orb = smoothstep(pulse, pulse - 0.3, active_dist);
+    
+    // Speaking glow - brighter gold
+    float glow1 = smoothstep(pulse + 0.2, pulse - 0.5, active_dist) * 0.5;
+    float glow2 = pow(0.25 / dist, 1.3) * 0.25;
+    
+    vec3 color_core = vec3(1.0, 0.85, 0.3); // Brightest gold
+    vec3 color_glow = vec3(1.0, 0.7, 0.2); // Vibrant amber
+    
+    vec3 final_color = (orb * color_core) + (glow1 * color_glow) + (glow2 * color_glow);
+    
+    float alpha = orb + glow1 + glow2;
+    
+    gl_FragColor = vec4(final_color, alpha);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_9 -->
+</div>
+</div>
+<!-- Bottom Captions -->
+<div class="absolute bottom-32 left-0 right-0 px-container-padding md:px-32 text-center z-20">
+<p class="font-hero text-hero text-on-primary max-w-4xl mx-auto caption-fade-in text-balance">
+            "Let's begin with a gentle rotation to release the neck."
+        </p>
+</div>
+<!-- Bottom Right Mic Control -->
+<button class="absolute bottom-12 right-12 z-30 w-14 h-14 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors duration-300">
+<span class="material-symbols-outlined text-on-primary" style="font-weight: 200;">mic</span>
+</button>
+</body></html>

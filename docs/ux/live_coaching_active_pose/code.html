@@ -1,0 +1,285 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mira.ai - Live Coaching</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&amp;family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline-variant": "#c0c8c3",
+                      "tertiary-container": "#cba72f",
+                      "on-secondary-fixed": "#1b1c1a",
+                      "inverse-surface": "#28332f",
+                      "on-error": "#ffffff",
+                      "on-secondary-container": "#636360",
+                      "on-primary-fixed": "#002117",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-fixed-dim": "#c8c6c3",
+                      "surface-variant": "#dae5e0",
+                      "error-container": "#ffdad6",
+                      "on-primary-container": "#7aa694",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#a3d0be",
+                      "on-surface": "#141e1b",
+                      "surface-dim": "#d1ddd8",
+                      "secondary-fixed": "#e4e2de",
+                      "on-tertiary-fixed": "#241a00",
+                      "inverse-on-surface": "#e8f3ee",
+                      "on-tertiary-fixed-variant": "#574500",
+                      "on-secondary-fixed-variant": "#474744",
+                      "tertiary": "#735c00",
+                      "surface-container-highest": "#dae5e0",
+                      "on-tertiary-container": "#4e3d00",
+                      "on-background": "#141e1b",
+                      "on-primary": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed-dim": "#e9c349",
+                      "on-primary-fixed-variant": "#244e40",
+                      "surface": "#f1fcf7",
+                      "error": "#ba1a1a",
+                      "primary": "#00241a",
+                      "secondary": "#5e5e5c",
+                      "surface-bright": "#f1fcf7",
+                      "primary-fixed": "#bfecd9",
+                      "surface-container-high": "#dfebe6",
+                      "secondary-container": "#e1dfdc",
+                      "primary-container": "#0e3b2e",
+                      "surface-container": "#e5f0eb",
+                      "tertiary-fixed": "#ffe088",
+                      "surface-tint": "#3c6657",
+                      "surface-container-low": "#ebf6f1",
+                      "on-surface-variant": "#414845",
+                      "background": "#f1fcf7",
+                      "primary-fixed-dim": "#a3d0be",
+                      "on-tertiary": "#ffffff",
+                      "outline": "#717974"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "container-padding": "24px",
+                      "stack-lg": "40px",
+                      "stack-md": "24px",
+                      "stack-sm": "12px",
+                      "unit": "8px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "DM Sans"
+                      ],
+                      "label-md": [
+                              "DM Sans"
+                      ],
+                      "headline-lg": [
+                              "Playfair Display"
+                      ],
+                      "headline-lg-mobile": [
+                              "Playfair Display"
+                      ],
+                      "headline-md": [
+                              "Playfair Display"
+                      ],
+                      "body-md": [
+                              "DM Sans"
+                      ],
+                      "hero": [
+                              "Playfair Display"
+                      ],
+                      "label-sm": [
+                              "DM Sans"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "hero": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "700"
+                              }
+                      }
+              }
+            },
+          }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .timer-circle {
+            transition: stroke-dashoffset 0.1s linear;
+        }
+        .glass-panel {
+            box-shadow: 0 20px 40px rgba(14, 59, 46, 0.08), inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased font-body-md overflow-hidden touch-none select-none">
+<!-- Live Coaching Main Canvas -->
+<main class="relative w-full h-screen bg-on-background">
+<!-- Background Camera Feed Placeholder -->
+<div class="absolute inset-0 w-full h-full bg-cover bg-center" data-alt="A beautiful, minimalist modern wellness studio with large floor-to-ceiling windows letting in soft, diffused natural daylight. The floor is pale oak wood. The color palette is strictly serene, featuring soft whites, subtle creams, and natural tones, creating a highly premium, tranquil light-mode aesthetic. A person is holding a precise yoga warrior pose in the center of the frame." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCab2VXl6Q6cGqq8sjye7W_7rwyWZxfMq_s0gKJiaAKBKS9pV3eE7GWhtvZ8PwWYDVyVTkfc1Rz2WuGXhghkVOWP7FavUmeb15Sjq1nXrAADzbGYJt-2c7p1LhiH8cfpka4EG8EUgQxgspJxwSWc51bgjqoNiRSnqeQastaUYuDoabPE7g3XyQxjrgRa737VRsbdtfjRalVJng1oF3rDDbHESJvQLrhz76nTUU4PO5eB9Mz5VnQbcrw')">
+</div>
+<!-- Real-time Skeleton Overlay (SVG) -->
+<svg aria-hidden="true" class="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="xMidYMid slice" viewBox="0 0 100 100">
+<!-- Glow filter for lines -->
+<defs>
+<filter height="140%" id="gold-glow" width="140%" x="-20%" y="-20%">
+<feGaussianBlur result="blur" stdDeviation="1.5"></feGaussianBlur>
+<feComposite in="SourceGraphic" in2="blur" operator="over"></feComposite>
+</filter>
+</defs>
+<g class="text-tertiary-fixed-dim" fill="none" filter="url(#gold-glow)" opacity="0.85" stroke="currentColor">
+<!-- Arms -->
+<line stroke-width="0.35" x1="50" x2="35" y1="36" y2="35"></line>
+<line stroke-width="0.35" x1="50" x2="68" y1="36" y2="38"></line>
+<line stroke-width="0.35" x1="68" x2="80" y1="38" y2="34"></line>
+<line stroke-width="0.35" x1="35" x2="25" y1="35" y2="42"></line>
+<!-- Spine/Torso -->
+<line stroke-width="0.4" x1="50" x2="50" y1="32" y2="52"></line>
+<!-- Legs -->
+<line stroke-width="0.4" x1="50" x2="42" y1="52" y2="72"></line>
+<line stroke-width="0.4" x1="42" x2="44" y1="72" y2="88"></line>
+<line stroke-width="0.4" x1="50" x2="65" y1="52" y2="68"></line>
+<line stroke-width="0.4" x1="65" x2="72" y1="68" y2="85"></line>
+<!-- Joints -->
+<circle cx="50" cy="36" fill="currentColor" r="0.8"></circle>
+<circle cx="35" cy="35" fill="currentColor" r="0.8"></circle>
+<circle cx="68" cy="38" fill="currentColor" r="0.8"></circle>
+<circle cx="50" cy="52" fill="currentColor" r="0.8"></circle>
+<circle cx="42" cy="72" fill="currentColor" r="0.8"></circle>
+<circle cx="65" cy="68" fill="currentColor" r="0.8"></circle>
+</g>
+<!-- Head tracking circle -->
+<circle class="text-tertiary-fixed-dim" cx="50" cy="26" fill="none" opacity="0.6" r="3.5" stroke="currentColor" stroke-dasharray="1 1" stroke-width="0.3"></circle>
+</svg>
+<!-- Circular Hold Timer (Placed near front knee) -->
+<div class="absolute top-[68%] left-[65%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 drop-shadow-md">
+<svg class="-rotate-90" height="72" viewBox="0 0 72 72" width="72">
+<!-- Background track -->
+<circle cx="36" cy="36" fill="none" r="32" stroke="rgba(255,255,255,0.2)" stroke-width="2"></circle>
+<!-- Filling track -->
+<circle class="text-tertiary-fixed-dim timer-circle" cx="36" cy="36" fill="none" r="32" stroke="currentColor" stroke-dasharray="201" stroke-dashoffset="60" stroke-linecap="round" stroke-width="3" style="filter: drop-shadow(0 0 6px currentColor);"></circle>
+</svg>
+</div>
+<!-- Top HUD Elements -->
+<header class="absolute top-0 left-0 w-full flex justify-between items-start p-container-padding z-20">
+<!-- Confidence / Tracking Indicator -->
+<div class="flex items-center gap-2 bg-surface/40 backdrop-blur-md rounded-full py-2 px-3 border border-white/20 shadow-sm">
+<div class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-fixed-dim opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary-fixed-dim"></span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface tracking-wide">Tracking Focus</span>
+</div>
+<!-- Close / End Session Button -->
+<button class="w-12 h-12 rounded-full bg-surface/40 backdrop-blur-md flex items-center justify-center text-on-surface border border-white/20 shadow-sm hover:bg-surface/60 transition-colors active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">close</span>
+</button>
+</header>
+<!-- Bottom Third: Coaching Panel -->
+<div class="absolute bottom-stack-md left-container-padding right-container-padding z-20">
+<!-- Glassmorphism Container -->
+<div class="glass-panel bg-surface/75 backdrop-blur-xl rounded-lg p-stack-md border border-white/30 relative overflow-hidden">
+<!-- Ambient animated glow inside panel -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-tertiary-container/10 rounded-full blur-2xl animate-pulse"></div>
+<div class="relative z-10 flex flex-col gap-unit">
+<!-- State Label -->
+<div class="flex">
+<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container/60 border border-outline-variant/20 shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary-container" style="font-variation-settings: 'FILL' 1;">psychiatry</span>
+<span class="font-label-sm text-label-sm text-on-surface">Correcting</span>
+</div>
+</div>
+<!-- Coaching Cue -->
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mt-1 pr-4 max-w-sm tracking-tight">
+                        Bend your front knee a little further.
+                    </h1>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simulate timer filling up slowly for micro-interaction demonstration
+        document.addEventListener('DOMContentLoaded', () => {
+            const timerCircle = document.querySelector('.timer-circle');
+            if(timerCircle) {
+                // Circumference is ~201 (2 * pi * 32)
+                let offset = 201;
+                timerCircle.style.strokeDashoffset = offset;
+                
+                const interval = setInterval(() => {
+                    offset -= 1.5;
+                    if(offset <= 60) {
+                        offset = 60; // Stop at target visual
+                        clearInterval(interval);
+                    }
+                    timerCircle.style.strokeDashoffset = offset;
+                }, 50);
+            }
+        });
+    </script>
+</body></html>

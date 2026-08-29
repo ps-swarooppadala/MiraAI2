@@ -1,0 +1,285 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mira.ai - Home</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#241a00",
+                        "surface-bright": "#f1fcf7",
+                        "on-secondary-container": "#636360",
+                        "on-tertiary-container": "#4e3d00",
+                        "primary-fixed-dim": "#a3d0be",
+                        "secondary-fixed-dim": "#c8c6c3",
+                        "secondary-fixed": "#e4e2de",
+                        "surface-tint": "#3c6657",
+                        "tertiary-container": "#cba72f",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#7aa694",
+                        "surface": "#f1fcf7",
+                        "inverse-surface": "#28332f",
+                        "surface-variant": "#dae5e0",
+                        "secondary-container": "#e1dfdc",
+                        "on-secondary-fixed": "#1b1c1a",
+                        "background": "#f1fcf7",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "surface-container": "#e5f0eb",
+                        "on-primary-fixed-variant": "#244e40",
+                        "primary": "#00241a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#735c00",
+                        "on-background": "#141e1b",
+                        "on-secondary-fixed-variant": "#474744",
+                        "surface-container-high": "#dfebe6",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#a3d0be",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#dae5e0",
+                        "surface-dim": "#d1ddd8",
+                        "outline-variant": "#c0c8c3",
+                        "primary-container": "#0e3b2e",
+                        "on-surface": "#141e1b",
+                        "surface-container-low": "#ebf6f1",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "on-surface-variant": "#414845",
+                        "tertiary-fixed": "#ffe088",
+                        "outline": "#717974",
+                        "on-primary-fixed": "#002117",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#e8f3ee",
+                        "primary-fixed": "#bfecd9",
+                        "secondary": "#5e5e5c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "stack-sm": "12px",
+                        "stack-md": "24px",
+                        "stack-lg": "40px",
+                        "container-padding": "24px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["DM Sans"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "headline-md": ["Playfair Display"],
+                        "body-lg": ["DM Sans"],
+                        "label-md": ["DM Sans"],
+                        "headline-lg": ["Playfair Display"],
+                        "hero": ["Playfair Display"],
+                        "body-md": ["DM Sans"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "hero": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F1FCF7; /* surface-bright */
+            color: #0E3B2E; /* primary-container */
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Ambient Shadows */
+        .shadow-ambient {
+            box-shadow: 0 20px 40px rgba(14, 59, 46, 0.08);
+        }
+        .shadow-ambient-sm {
+            box-shadow: 0 10px 20px rgba(14, 59, 46, 0.05);
+        }
+        
+        /* Pulse Animation for Voice Orb */
+        @keyframes subtle-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(197, 160, 89, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(197, 160, 89, 0); }
+        }
+        .animate-voice-pulse {
+            animation: subtle-pulse 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen relative pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-40 bg-surface dark:bg-on-background bg-surface dark:bg-on-background">
+<div class="flex justify-between items-center px-container-padding py-stack-sm w-full max-w-7xl mx-auto">
+<!-- Leading Avatar -->
+<button aria-label="User Profile" class="w-10 h-10 rounded-full overflow-hidden hover:opacity-80 transition-opacity Active: scale-95 transition-transform">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A close-up, high-quality portrait of a serene individual with soft natural lighting, reflecting a calm and premium wellness aesthetic. The background is a soft, out-of-focus natural environment. Colors are warm and muted." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCUgc4VdkuKyThW_Wn51ahY16DWClOBleqwqVzgqs46Iq3YNrWgeCvuIVSCPhtrK_jp7iisvlFLhA-dBgF-xSQLkafyYrT6y6CmHQjuEGp_-e99o6TEvwf9xdMDk72wA4Kpo4keq4P_KdCitl3lhMHiZ9xA9mJjtapQuMc_wPgVuzR2fSC6Kw3T00g6zgvN8V_T_M6IVKg3mMtdCeC_P1eoLsy9tbev4VZ-FAtLoBxT0BIoOYV7wBT">
+</button>
+<!-- Headline / Brand -->
+<h1 class="font-headline-md text-headline-md-mobile md:text-headline-md text-primary dark:text-primary-fixed italic text-center flex-1 mx-4">
+                Mira.ai
+            </h1>
+<!-- Trailing Icon -->
+<button aria-label="Settings" class="w-10 h-10 flex items-center justify-center text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity Active: scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="max-w-7xl mx-auto px-container-padding pt-stack-md flex flex-col gap-stack-lg">
+<!-- Greeting -->
+<section class="max-w-2xl">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary-container">
+                Good evening —<br>ready to unwind?
+            </h2>
+</section>
+<!-- Hero: Freestyle Mode -->
+<section class="w-full">
+<div class="bg-white rounded-[28px] p-8 shadow-ambient flex flex-col items-center justify-center min-h-[320px] relative overflow-hidden group cursor-pointer transition-transform hover:scale-[1.01] duration-300">
+<!-- Subtle background texture/gradient -->
+<div class="absolute inset-0 bg-gradient-to-br from-surface-bright/50 to-surface-container/50 pointer-events-none"></div>
+<div class="z-10 flex flex-col items-center text-center gap-6">
+<!-- Voice Orb -->
+<div class="w-24 h-24 rounded-full bg-[#C5A059] bg-opacity-20 flex items-center justify-center animate-voice-pulse relative">
+<div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#C5A059] to-tertiary-container shadow-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-3xl" data-icon="mic" data-weight="fill" style="font-variation-settings: 'FILL' 1;">mic</span>
+</div>
+</div>
+<div class="space-y-2">
+<h3 class="font-headline-md text-headline-md-mobile md:text-headline-md text-primary-container">Freestyle Session</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Tap to begin a conversation.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Gallery: Today's Practices -->
+<section class="w-full space-y-stack-md">
+<div class="flex items-center justify-between">
+<h3 class="font-body-lg text-body-lg text-primary-container font-semibold">Today's Practices</h3>
+<button class="font-label-md text-label-md text-tertiary-container hover:opacity-80 transition-opacity">View All</button>
+</div>
+<div class="flex overflow-x-auto gap-gutter pb-4 hide-scrollbar -mx-container-padding px-container-padding snap-x snap-mandatory">
+<!-- Practice Card 1 -->
+<div class="flex-none w-64 bg-white rounded-2xl p-4 shadow-ambient-sm snap-start group cursor-pointer">
+<div class="w-full h-40 rounded-xl overflow-hidden mb-4 relative">
+<img alt="Surya Namaskar" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A soft, high-quality silhouette illustration of a person performing a Surya Namaskar yoga pose. The background is a warm, minimalist gradient blending soft peach and light cream, evoking an early morning sunrise. The style is premium, clean, and tranquil." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3lWk1HvoatR_yJdFCDqW6miafCWRJyRcBo9YG-PPIrIjljwcaarEE3w1gln5Wc8aAfdJFwGM9T69aBMsOinbEKHxRHHdRkIgeGJmTbk6hwhKiJaXosZ4s5UFuOS5xssCE4Zzuo5TqpnT37aEWLOcJ_FAAYeQyogqClmQ6pdKcso6VI1Q3dZ9273c1HEXjyLfu5u-lZGFJVBKg0n_NZJzXFHYCvwrFMk-6IeQ8PcFuWt5iMvciJ-OM">
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+</div>
+<div class="space-y-2">
+<h4 class="font-body-md text-body-md font-semibold text-primary-container">Surya Namaskar</h4>
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-md text-label-md">15 Min</span>
+<div class="flex gap-1">
+<div class="w-2 h-2 rounded-full bg-[#C5A059]"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Practice Card 2 -->
+<div class="flex-none w-64 bg-white rounded-2xl p-4 shadow-ambient-sm snap-start group cursor-pointer">
+<div class="w-full h-40 rounded-xl overflow-hidden mb-4 relative">
+<img alt="Warrior Flow" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A soft, high-quality silhouette illustration of a person performing a Warrior Flow yoga pose. The background features a serene, minimalist gradient blending deep forest green and soft cream, conveying strength and groundedness. The style is premium, clean, and tranquil." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7lO0XC1MAD1hNN13zK7vJXJk2_TkPy8ifplzY_KWC9qblt5xF3cruawnwTA3i1Q5C3wau-PZoPaZk60_sxyklDj2jjZDQb-67cxPozyy5efN-Apb3DaqAxjniVnHa_0n0XDqigUBV2CbWljerWs3H3EtKjhFrF6_crRvwuyHOns8kNRuIHQBKfKETJvmMTCJmRfWlzh6cX-CWUG0hcoy5A5d6Nbp5WwlQNzS903qNvcqzXcn1N-mo">
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+</div>
+<div class="space-y-2">
+<h4 class="font-body-md text-body-md font-semibold text-primary-container">Warrior Flow</h4>
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-md text-label-md">20 Min</span>
+<div class="flex gap-1">
+<div class="w-2 h-2 rounded-full bg-[#C5A059]"></div>
+<div class="w-2 h-2 rounded-full bg-[#C5A059]"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Practice Card 3 -->
+<div class="flex-none w-64 bg-white rounded-2xl p-4 shadow-ambient-sm snap-start group cursor-pointer">
+<div class="w-full h-40 rounded-xl overflow-hidden mb-4 relative">
+<img alt="Balance &amp; Focus" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A soft, high-quality silhouette illustration of a person performing a balancing yoga pose. The background is a calm, minimalist gradient blending soft lavender and light cream, evoking mental clarity and focus. The style is premium, clean, and tranquil." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGC92ogDDejN_vxeaOA8HFkgotJL6w6y9-MU1cP2_7fnMEMyssaVgozS_2G2rXjNk-p7Re0FfOuF0daxTFY3y7d23zfsOnJi7NeRvvVX3R6jWX2NSWLFyn0GjifKmjS-UccjkZ_1XlNxlUo85QR6i_01EEs7NbIUBHzIPP_0mGtv7zBrIxgT7VDIvKdTALpTHm60bZT8EVWM7WxaihSXQhSyvaihS1lmHFgIUY5RRSlqLYQkvjkClQ">
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+</div>
+<div class="space-y-2">
+<h4 class="font-body-md text-body-md font-semibold text-primary-container">Balance &amp; Focus</h4>
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-md text-label-md">12 Min</span>
+<div class="flex gap-1">
+<div class="w-2 h-2 rounded-full bg-[#C5A059]"></div>
+<div class="w-2 h-2 rounded-full bg-[#C5A059]"></div>
+<div class="w-2 h-2 rounded-full bg-[#C5A059]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<!-- Note: MD hidden to show bottom nav only on mobile as per standard app patterns, though prompt implies it's the primary nav -->
+<nav class="md:hidden fixed bottom-stack-md left-1/2 -translate-x-1/2 z-50 flex justify-around items-center p-unit w-[90%] max-w-md rounded-full bg-surface-container/90 dark:bg-inverse-surface/90 backdrop-blur-md shadow-[0_20px_40px_rgba(14,59,46,0.08)]">
+<!-- Home (Active) -->
+<a aria-label="Home" class="flex items-center justify-center bg-primary dark:bg-primary-fixed text-on-primary dark:text-on-primary-fixed rounded-full w-12 h-12 hover:scale-110 transition-transform Active: scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home_max" data-weight="fill" style="font-variation-settings: 'FILL' 1;">home_max</span>
+</a>
+<!-- Sessions/History -->
+<a aria-label="Sessions" class="flex items-center justify-center text-on-surface-variant dark:text-surface-variant w-12 h-12 hover:scale-110 transition-transform Active: scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="spa">spa</span>
+</a>
+<!-- You/Memory -->
+<a aria-label="You" class="flex items-center justify-center text-on-surface-variant dark:text-surface-variant w-12 h-12 hover:scale-110 transition-transform Active: scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="bubble_chart">bubble_chart</span>
+</a>
+<!-- Profile (From JSON) -->
+<a aria-label="Profile" class="flex items-center justify-center text-on-surface-variant dark:text-surface-variant w-12 h-12 hover:scale-110 transition-transform Active: scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person_2">person_2</span>
+</a>
+</nav>
+<!-- Desktop Navigation Alternative (Hidden on Mobile) -->
+<nav class="hidden md:flex fixed left-stack-md top-1/2 -translate-y-1/2 flex-col gap-unit p-unit rounded-full bg-surface-container/90 backdrop-blur-md shadow-ambient z-50">
+<a aria-label="Home" class="flex items-center justify-center bg-primary text-on-primary rounded-full w-12 h-12 hover:scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="home_max" data-weight="fill" style="font-variation-settings: 'FILL' 1;">home_max</span>
+</a>
+<a aria-label="Sessions" class="flex items-center justify-center text-on-surface-variant w-12 h-12 hover:scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="spa">spa</span>
+</a>
+<a aria-label="You" class="flex items-center justify-center text-on-surface-variant w-12 h-12 hover:scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="bubble_chart">bubble_chart</span>
+</a>
+<a aria-label="Profile" class="flex items-center justify-center text-on-surface-variant w-12 h-12 hover:scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="person_2">person_2</span>
+</a>
+</nav>
+</body></html>

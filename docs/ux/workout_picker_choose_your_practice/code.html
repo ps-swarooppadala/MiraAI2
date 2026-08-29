@@ -1,0 +1,318 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Mira.ai - Choose your practice</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-secondary-fixed": "#1b1c1a",
+                "surface": "#f1fcf7",
+                "on-surface-variant": "#414845",
+                "surface-dim": "#d1ddd8",
+                "outline-variant": "#c0c8c3",
+                "primary": "#00241a",
+                "on-background": "#141e1b",
+                "background": "#f1fcf7",
+                "on-secondary": "#ffffff",
+                "error": "#ba1a1a",
+                "surface-variant": "#dae5e0",
+                "inverse-surface": "#28332f",
+                "tertiary-fixed-dim": "#e9c349",
+                "primary-fixed": "#bfecd9",
+                "outline": "#717974",
+                "on-surface": "#141e1b",
+                "on-primary-fixed-variant": "#244e40",
+                "surface-tint": "#3c6657",
+                "on-primary-fixed": "#002117",
+                "secondary": "#5e5e5c",
+                "on-primary": "#ffffff",
+                "surface-container-low": "#ebf6f1",
+                "on-tertiary-fixed-variant": "#574500",
+                "on-tertiary": "#ffffff",
+                "secondary-fixed": "#e4e2de",
+                "surface-container-high": "#dfebe6",
+                "secondary-fixed-dim": "#c8c6c3",
+                "primary-fixed-dim": "#a3d0be",
+                "inverse-on-surface": "#e8f3ee",
+                "secondary-container": "#e1dfdc",
+                "primary-container": "#0e3b2e",
+                "tertiary-fixed": "#ffe088",
+                "tertiary": "#735c00",
+                "on-secondary-container": "#636360",
+                "on-primary-container": "#7aa694",
+                "surface-container": "#e5f0eb",
+                "surface-bright": "#f1fcf7",
+                "surface-container-highest": "#dae5e0",
+                "surface-container-lowest": "#ffffff",
+                "on-error": "#ffffff",
+                "on-error-container": "#93000a",
+                "tertiary-container": "#cba72f",
+                "inverse-primary": "#a3d0be",
+                "on-secondary-fixed-variant": "#474744",
+                "on-tertiary-fixed": "#241a00",
+                "on-tertiary-container": "#4e3d00",
+                "error-container": "#ffdad6"
+        },
+        "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "stack-lg": "40px",
+                "stack-sm": "12px",
+                "unit": "8px",
+                "container-padding": "24px",
+                "gutter": "16px",
+                "stack-md": "24px"
+        },
+        "fontFamily": {
+                "label-md": [
+                        "DM Sans"
+                ],
+                "label-sm": [
+                        "DM Sans"
+                ],
+                "body-md": [
+                        "DM Sans"
+                ],
+                "headline-md": [
+                        "Playfair Display"
+                ],
+                "headline-lg": [
+                        "Playfair Display"
+                ],
+                "hero": [
+                        "Playfair Display"
+                ],
+                "headline-lg-mobile": [
+                        "Playfair Display"
+                ],
+                "body-lg": [
+                        "DM Sans"
+                ]
+        },
+        "fontSize": {
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "fontWeight": "700"
+                        }
+                ],
+                "hero": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "28px",
+                        {
+                                "lineHeight": "36px",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: theme('colors.primary-container');
+        }
+        
+        /* Premium subtle ambient shadow */
+        .premium-shadow {
+            box-shadow: 0 10px 30px -5px rgba(14,59,46,0.15), 0 20px 40px -10px rgba(14,59,46,0.1);
+        }
+        
+        .card-hover {
+            transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.3s cubic-bezier(0.2, 0, 0, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px -5px rgba(14,59,46,0.2), 0 25px 45px -10px rgba(14,59,46,0.15);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-primary-container min-h-screen pb-32 pt-top-app-bar selection:bg-tertiary-fixed selection:text-tertiary">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-primary-container flex justify-between items-center px-container-padding py-stack-sm z-40">
+<div class="flex items-center gap-unit cursor-pointer hover:opacity-80 transition-opacity">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed/20 shadow-sm">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A subtle, minimalist portrait of a calm individual in soft, warm lighting. The style is highly editorial and refined, evoking a sense of premium wellness and tranquility. Muted natural tones predominate, aligning perfectly with a quiet confidence aesthetic. The focus is soft, creating a dreamy, approachable mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9WIe9q7g8ANrGvBdKEnQhY0wn0dAuJK5XmLFnq0Zfl8xIrHXxfC18oVtp2-K22EqzTYZScKdQ_4F_fpFXoafwBXXs_DqLSpPMb-diYcxbAGDDfkmZqVumcGb4ESykaR5JQiF6DlvlmAgFB9SdAye1NUvT1nGA4KTV3C4gUgp_uEkHwyF1Axe1KRs_iu4TpouBZQNOyDb1klyBEl43msAq_zZ1ksHQywaIWYz-zlUcSN2TMAZblq54">
+</div>
+<span class="font-hero text-headline-md text-primary-fixed tracking-tight">Mira.ai</span>
+</div>
+<button aria-label="Settings" class="w-12 h-12 flex items-center justify-center text-primary-fixed rounded-full hover:bg-primary-fixed/10 hover:opacity-80 transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[28px]">settings</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="max-w-2xl mx-auto px-container-padding mt-stack-md relative z-10">
+<!-- Header Section -->
+<div class="mb-stack-lg text-center md:text-left">
+<p class="font-label-md text-label-md text-primary-fixed-dim uppercase tracking-widest mb-unit">Daily Practice</p>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-surface-lowest md:max-w-md text-primary-fixed">Choose your practice</h1>
+<p class="mt-stack-sm font-body-md text-body-md text-primary-fixed-dim md:max-w-md text-balance">Select a guided session tailored to your current energy and focus.</p>
+</div>
+<!-- Practice Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter md:gap-stack-md">
+<!-- Card 1: Warrior Flow -->
+<button class="group card-hover bg-surface rounded-xl p-6 text-left relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-tertiary-fixed premium-shadow w-full flex flex-col h-full border border-primary-fixed/10">
+<div class="flex justify-between items-start mb-stack-md relative z-10">
+<div class="bg-primary-fixed/20 text-primary-container px-3 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="font-label-sm text-label-sm">15 mins</span>
+</div>
+<span class="material-symbols-outlined text-primary-fixed-dim group-hover:text-primary transition-colors">arrow_forward</span>
+</div>
+<div class="mt-auto relative z-10">
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Warrior Flow</h3>
+<div class="bg-surface-container-low rounded-lg p-3 mt-3 border border-surface-variant/50 relative">
+<div class="absolute -left-1.5 top-1/2 -translate-y-1/2 w-1 h-8 bg-tertiary rounded-r-full"></div>
+<p class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">psychology</span> Coach note
+                        </p>
+<p class="font-body-md text-body-md text-on-surface-variant italic text-sm">"Good for morning stiffness."</p>
+</div>
+</div>
+<!-- Decorative Silhouette -->
+<div class="absolute -bottom-4 -right-4 w-32 h-32 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500 transform origin-bottom-right">
+<img alt="Warrior pose illustration" class="w-full h-full object-contain" data-alt="A delicate, minimalist single-line drawing of a yoga warrior pose silhouette. The stroke is elegant and fluid, suggesting movement and stability. The artwork is rendered in a soft, natural tone against a transparent background, embodying a premium wellness aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1Yybu5KPjIjWxrkEtYRk3_yst6pkT1oxTV2U0hEb2MY6VqKzGggA3V5aFBwaEapkLYbcSSOudmpVHhgnTDK3Eg5XiPyAielUhIEYokO3ycTzSrBf5khUeQLjdhLOBAnDDqYP6Q0eITwb-0TE5wNQjfoUSMnGhdemnxQEL436SPz5TLlz4TRXMVID9M2nUrgsamqxvq_kOvyO4NFJZ3XWtUz9MmhVQOfhlKFUeByOZQ4wqX1zRH4jB">
+</div>
+</button>
+<!-- Card 2: Surya Namaskar -->
+<button class="group card-hover bg-surface rounded-xl p-6 text-left relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-tertiary-fixed premium-shadow w-full flex flex-col h-full border border-primary-fixed/10">
+<div class="flex justify-between items-start mb-stack-md relative z-10">
+<div class="bg-tertiary-fixed/20 text-tertiary-container px-3 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="font-label-sm text-label-sm">20 mins</span>
+</div>
+<span class="material-symbols-outlined text-primary-fixed-dim group-hover:text-primary transition-colors">arrow_forward</span>
+</div>
+<div class="mt-auto relative z-10">
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Surya Namaskar</h3>
+<div class="bg-surface-container-low rounded-lg p-3 mt-3 border border-surface-variant/50 relative">
+<div class="absolute -left-1.5 top-1/2 -translate-y-1/2 w-1 h-8 bg-tertiary rounded-r-full"></div>
+<p class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">psychology</span> Coach note
+                        </p>
+<p class="font-body-md text-body-md text-on-surface-variant italic text-sm">"Build heat and focus."</p>
+</div>
+</div>
+<!-- Decorative Silhouette -->
+<div class="absolute -bottom-4 -right-4 w-32 h-32 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500 transform origin-bottom-right">
+<img alt="Sun salutation illustration" class="w-full h-full object-contain" data-alt="A delicate, minimalist single-line drawing of a sun salutation yoga pose silhouette. The stroke is elegant and sweeping, capturing an upward, energizing motion. The artwork is rendered in a soft, warm tone against a transparent background, embodying a premium wellness aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKJqN_Os3DFAmhmoEzxJqDOGh6toLspIqzknWgEmSVE-Atdj94f_LLIHmMtVt7CuYG8aOItvVD_MYYFTUW8PFqqYcdnEtd5bdRRsCMWqjeW3z_ZwXF21vrW5htjufucxR3wh8SGvkyPPEAbR3bIf_pnigcV-V4sA6V5QAlEklsQqKU1fEt9W9pTAyCnOADgoMrEEHQ8jGRrHOGlY8i7V2_-17Uw1dc1HmtBtXzbSc7GubfjGFwAI2G">
+</div>
+</button>
+<!-- Card 3: Balance & Focus -->
+<button class="group card-hover bg-surface rounded-xl p-6 text-left relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-tertiary-fixed premium-shadow w-full flex flex-col h-full border border-primary-fixed/10 md:col-span-2">
+<div class="flex justify-between items-start mb-stack-md relative z-10">
+<div class="bg-primary-fixed/20 text-primary-container px-3 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="font-label-sm text-label-sm">12 mins</span>
+</div>
+<span class="material-symbols-outlined text-primary-fixed-dim group-hover:text-primary transition-colors">arrow_forward</span>
+</div>
+<div class="mt-auto relative z-10 flex flex-col md:flex-row md:items-end md:justify-between w-full">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Balance &amp; Focus</h3>
+<div class="bg-surface-container-low rounded-lg p-3 mt-3 border border-surface-variant/50 relative max-w-sm">
+<div class="absolute -left-1.5 top-1/2 -translate-y-1/2 w-1 h-8 bg-tertiary rounded-r-full"></div>
+<p class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">psychology</span> Coach note
+                            </p>
+<p class="font-body-md text-body-md text-on-surface-variant italic text-sm">"Find your center."</p>
+</div>
+</div>
+<!-- Decorative Silhouette -->
+<div class="absolute -bottom-8 -right-8 w-48 h-48 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500 transform origin-bottom-right hidden md:block">
+<img alt="Tree pose illustration" class="w-full h-full object-contain" data-alt="A delicate, minimalist single-line drawing of a tree pose yoga silhouette. The line work is steady and centered, conveying balance and calm. Rendered in a soft, natural hue against a transparent background, it perfectly complements a quiet, premium wellness interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDbv9w4bu5s8F3o2tWSO6wz_uWHG7H3B3n37PmZ5ZKRvI0sVPqUS6-DfjLuw4jmnsXQhQ4_z_bhaNsHmfT_BAbXRY1Gwq84p8a54VLtyBI7Q-u42nWAKwQWAoSNn9Np-cQE0l1cb4VVi2lU4FGSF-EaR4RjfT9vlPYQePiVxrO5KXcvcYmZueRMtGGsicynFqtvwGxCgggZmx3LmTjhE5XL-VjRzK9d6LfBq7ZB-4Y-HpNJ-IqLacH">
+</div>
+</div>
+<!-- Mobile Decorative Silhouette -->
+<div class="absolute -bottom-4 -right-4 w-32 h-32 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500 transform origin-bottom-right md:hidden">
+<img alt="Tree pose illustration" class="w-full h-full object-contain" data-alt="A delicate, minimalist single-line drawing of a tree pose yoga silhouette. The line work is steady and centered, conveying balance and calm. Rendered in a soft, natural hue against a transparent background, it perfectly complements a quiet, premium wellness interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkC6op8qbNiuUh7IRWZLHCRdxQJ24ronZYgJ-q1B782bPz7WjyK2yaQfqU4MH6e_2Qe3XQaUqvERFtrjyQVVB141k5xmJlDNN9lB2q1OcjkbAgmFcwnnBhMtb4dewp0FfczA9WhENB56QHdBT1BY-0NLa9Tfc3fJSshX0oZxZWHODaeTYpqbMhD-uxxFHSpNkz6X5VAf6tQz1aYuI8BdWLPt32f8lR7fSwxCU_CD--UrK9KH1zPLhl">
+</div>
+</button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-gutter left-1/2 -translate-x-1/2 w-[calc(100%-32px)] max-w-md z-50 flex justify-around items-center p-unit bg-surface-container-lowest rounded-full shadow-[0_20px_40px_rgba(14,59,46,0.08)] shadow-lg">
+<button aria-label="Home" class="flex flex-col items-center justify-center text-secondary w-12 h-12 hover:scale-110 transition-transform duration-200 active:scale-90">
+<span class="material-symbols-outlined">home</span>
+</button>
+<button aria-label="Self Care" class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-full w-12 h-12 hover:scale-110 transition-transform duration-200 active:scale-90">
+<span class="material-symbols-outlined filled">self_care</span>
+</button>
+<button aria-label="Neurology" class="flex flex-col items-center justify-center text-secondary w-12 h-12 hover:scale-110 transition-transform duration-200 active:scale-90">
+<span class="material-symbols-outlined">neurology</span>
+</button>
+<button aria-label="Profile" class="flex flex-col items-center justify-center text-secondary w-12 h-12 hover:scale-110 transition-transform duration-200 active:scale-90">
+<span class="material-symbols-outlined">person</span>
+</button>
+</nav>
+</body></html>

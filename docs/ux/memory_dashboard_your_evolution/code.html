@@ -1,0 +1,372 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mira's Memory: Your Evolution</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed-dim": "#c8c6c3",
+                    "primary": "#00241a",
+                    "secondary-container": "#e1dfdc",
+                    "secondary": "#5e5e5c",
+                    "surface": "#f1fcf7",
+                    "on-secondary-container": "#636360",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed-variant": "#244e40",
+                    "tertiary-container": "#cba72f",
+                    "on-primary": "#ffffff",
+                    "surface-variant": "#dae5e0",
+                    "error-container": "#ffdad6",
+                    "on-primary-container": "#7aa694",
+                    "on-secondary-fixed-variant": "#474744",
+                    "surface-dim": "#d1ddd8",
+                    "on-surface-variant": "#414845",
+                    "outline-variant": "#c0c8c3",
+                    "on-primary-fixed": "#002117",
+                    "tertiary-fixed": "#ffe088",
+                    "on-secondary-fixed": "#1b1c1a",
+                    "primary-container": "#0e3b2e",
+                    "surface-bright": "#f1fcf7",
+                    "on-surface": "#141e1b",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#bfecd9",
+                    "background": "#f1fcf7",
+                    "inverse-primary": "#a3d0be",
+                    "tertiary": "#735c00",
+                    "inverse-on-surface": "#e8f3ee",
+                    "inverse-surface": "#28332f",
+                    "surface-container-low": "#ebf6f1",
+                    "on-tertiary-container": "#4e3d00",
+                    "on-secondary": "#ffffff",
+                    "surface-tint": "#3c6657",
+                    "surface-container-high": "#dfebe6",
+                    "primary-fixed-dim": "#a3d0be",
+                    "on-background": "#141e1b",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#e9c349",
+                    "surface-container": "#e5f0eb",
+                    "on-tertiary-fixed": "#241a00",
+                    "outline": "#717974",
+                    "surface-container-highest": "#dae5e0",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed-variant": "#574500",
+                    "secondary-fixed": "#e4e2de",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "24px",
+                    "stack-lg": "40px",
+                    "gutter": "16px",
+                    "stack-sm": "12px",
+                    "unit": "8px",
+                    "container-padding": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg": [
+                            "Playfair Display"
+                    ],
+                    "hero": [
+                            "Playfair Display"
+                    ],
+                    "headline-md": [
+                            "Playfair Display"
+                    ],
+                    "body-md": [
+                            "DM Sans"
+                    ],
+                    "label-md": [
+                            "DM Sans"
+                    ],
+                    "label-sm": [
+                            "DM Sans"
+                    ],
+                    "headline-lg-mobile": [
+                            "Playfair Display"
+                    ],
+                    "body-lg": [
+                            "DM Sans"
+                    ]
+            },
+            "fontSize": {
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "hero": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-filled {
+            font-variation-settings: 'FILL' 1, 'wght' 300;
+        }
+        
+        .ambient-shadow {
+            box-shadow: 0 10px 40px -10px rgba(14, 59, 46, 0.08);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-x-hidden min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-background sticky top-0 w-full z-50">
+<div class="flex justify-between items-center w-full px-container-padding py-stack-sm max-w-7xl mx-auto">
+<div class="font-headline-md text-headline-md font-bold text-primary">Mira.ai</div>
+<nav class="hidden md:flex gap-8">
+<a class="text-on-surface-variant font-body-md hover:text-primary transition-colors duration-300 ease-in-out" href="#">Dashboard</a>
+<a class="text-primary border-b-2 border-tertiary-container pb-1 font-body-md hover:text-primary transition-colors duration-300 ease-in-out" href="#">Sessions</a>
+<a class="text-on-surface-variant font-body-md hover:text-primary transition-colors duration-300 ease-in-out" href="#">Resources</a>
+<a class="text-on-surface-variant font-body-md hover:text-primary transition-colors duration-300 ease-in-out" href="#">Community</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<img alt="User profile" class="w-10 h-10 rounded-full object-cover shadow-sm" data-alt="A detailed, soft, natural light portrait of a person representing a user profile. The image should be warm, inviting, and consistent with a premium wellness aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-OeeZmYKOJVP8vX8Dvy2Euks_AlUor2V-ZmdpFSLPRBLlPG_Zqvp_luhUpkujFFZcETZ52_u-6ga2skkpa6-rrrnqiQUvE2RhA51drpWTkGfPGPgIi-LIEqed9e-ysYSQrWKUUQkfh6UmeQDwlClM0tVmMru2bS6AxW62WEZJL5mU53H8UA77Uway70BtUsaizMI04LCKA1kt_JQXEN6r6M2h6nPhgm3s7U11s2QGuTjpNdzGYXjG">
+</div>
+</div>
+</header>
+<div class="flex max-w-7xl mx-auto">
+<!-- SideNavBar -->
+<aside class="hidden lg:flex flex-col h-[calc(100vh-80px)] sticky top-[80px] w-64 py-stack-md px-gutter border-r border-outline-variant/30 bg-surface">
+<nav class="flex-1 space-y-2">
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-surface-variant transition-all font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="home_max">home_max</span>
+                    Home
+                </a>
+<a class="bg-primary-container text-on-primary-container flex items-center gap-3 px-4 py-3 rounded-lg font-label-md" href="#">
+<span class="material-symbols-outlined icon-filled" data-icon="psychology">psychology</span>
+                    Coaching
+                </a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-surface-variant transition-all font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+                    Journal
+                </a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-surface-variant transition-all font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="local_library">local_library</span>
+                    Library
+                </a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-surface-variant transition-all font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+                    Account
+                </a>
+</nav>
+<div class="mt-auto space-y-2">
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-surface-variant transition-all font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+                    Support
+                </a>
+<a class="text-on-surface-variant flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-surface-variant transition-all font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="dark_mode">dark_mode</span>
+                    Dark Mode
+                </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-container-padding py-stack-lg min-h-screen">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-stack-lg">
+<div>
+<h1 class="font-hero text-hero text-primary">Mira's Memory</h1>
+<p class="font-body-lg text-on-surface-variant mt-2 max-w-2xl">Your evolution, quietly observed and beautifully connected.</p>
+</div>
+<div class="flex items-center gap-2 text-secondary font-label-md">
+<span class="material-symbols-outlined text-sm" data-icon="lock">lock</span>
+                    Securely processed on device
+                </div>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-stack-md">
+<!-- Zone 1: Core Insights (Left/Top) -->
+<div class="xl:col-span-7 space-y-stack-md">
+<div class="glass-card rounded-lg p-stack-md ambient-shadow min-h-[400px] relative overflow-hidden flex flex-col justify-between">
+<div class="z-10 relative">
+<h2 class="font-headline-md text-headline-md text-primary mb-1">The Constellation</h2>
+<p class="text-on-surface-variant font-body-md mb-6">Highest confidence learnings about your practice.</p>
+</div>
+<!-- Abstract Node Representation -->
+<div class="relative w-full flex-1 flex items-center justify-center min-h-[250px] z-10">
+<!-- SVG Placeholder for abstract design -->
+<div class="w-full h-full bg-contain bg-center bg-no-repeat absolute inset-0 opacity-80" data-alt="A delicate, abstract line-art illustration of a constellation or connected nodes, rendered in very thin gold lines on a clean white background. Soft, premium, minimalist aesthetic conveying connection and growth." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCN21IJbCRvPDpZ9pAVdDVvRtfv9q-yfaXxBwixdxNcxH0hMsUuS7fnW5RomCFXkthVV1UPc5CjRky5jVvScmz7_fm8WjjZ6BPY5JEVztxwOfMudAEHkI-6SrArHpN0ralBsxlsr_D61I4OCMtWiRJzEDofKscN7jv5eeL_75kdPeZJrlPlvoyWWR7yLkE6ro04Iv4_RKAw3cFLrM9IJ0cu92AmhaFs6k4ZaMDx2c-Dt78w9AzQKxxk')"></div>
+</div>
+<div class="flex gap-3 z-10 relative mt-4">
+<span class="bg-[#F2EEE6] text-primary px-4 py-2 rounded-full font-label-md shadow-sm border border-outline-variant/20">Morning Ritualist</span>
+<span class="bg-[#F2EEE6] text-primary px-4 py-2 rounded-full font-label-md shadow-sm border border-outline-variant/20">Steady Progression</span>
+</div>
+</div>
+<!-- Zone 2: Evolution Timeline (Center) -->
+<div class="glass-card rounded-lg p-stack-md ambient-shadow">
+<h2 class="font-headline-md text-headline-md text-primary mb-6">Evolution Timeline</h2>
+<div class="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-outline-variant/30">
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+<div class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-tertiary-container bg-surface shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
+<span class="material-symbols-outlined text-tertiary-container text-sm" data-icon="done">done</span>
+</div>
+<div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-lg bg-surface border border-outline-variant/20 shadow-sm">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-label-md text-primary font-bold">Mastered 'Crow Pose'</h3>
+<time class="font-label-sm text-secondary">Oct 12</time>
+</div>
+<p class="font-body-md text-on-surface-variant text-sm">Consistent hold achieved over 3 sessions.</p>
+</div>
+</div>
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+<div class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-outline-variant bg-surface shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="schedule">schedule</span>
+</div>
+<div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-lg bg-surface border border-outline-variant/20 shadow-sm">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-label-md text-primary font-bold">Shifted to Evenings</h3>
+<time class="font-label-sm text-secondary">Sep 28</time>
+</div>
+<p class="font-body-md text-on-surface-variant text-sm">Natural alignment with new circadian rhythm.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Zone 3: Biometric & Preference Data (Right) -->
+<div class="xl:col-span-5 space-y-stack-md">
+<!-- Physical Trends -->
+<div class="glass-card rounded-lg p-stack-md ambient-shadow">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-md text-headline-md text-primary">Physical Trends</h2>
+<span class="material-symbols-outlined text-secondary" data-icon="trending_up">trending_up</span>
+</div>
+<p class="font-body-md text-on-surface-variant mb-4">Left knee alignment (last 10 sessions)</p>
+<!-- Simple visual graph representation -->
+<div class="h-32 w-full flex items-end justify-between gap-2 px-2 pb-2 border-b border-outline-variant/30">
+<div class="w-full bg-primary-container/20 rounded-t-sm h-[40%]"></div>
+<div class="w-full bg-primary-container/30 rounded-t-sm h-[50%]"></div>
+<div class="w-full bg-primary-container/40 rounded-t-sm h-[45%]"></div>
+<div class="w-full bg-primary-container/50 rounded-t-sm h-[60%]"></div>
+<div class="w-full bg-primary-container/60 rounded-t-sm h-[65%]"></div>
+<div class="w-full bg-primary-container/70 rounded-t-sm h-[75%]"></div>
+<div class="w-full bg-primary-container/80 rounded-t-sm h-[80%]"></div>
+<div class="w-full bg-primary-container/90 rounded-t-sm h-[85%]"></div>
+<div class="w-full bg-tertiary-container rounded-t-sm h-[90%] relative">
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-tertiary-container ring-4 ring-surface"></div>
+</div>
+</div>
+</div>
+<!-- Engagement Metrics -->
+<div class="glass-card rounded-lg p-stack-md ambient-shadow flex flex-col gap-6">
+<h2 class="font-headline-md text-headline-md text-primary">Engagement</h2>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-4 rounded-lg bg-surface-container-low border border-outline-variant/20">
+<div class="text-on-surface-variant font-label-md mb-1">Total Flow</div>
+<div class="font-headline-lg text-primary">42 <span class="text-sm font-normal text-secondary">hrs</span></div>
+</div>
+<div class="p-4 rounded-lg bg-surface-container-low border border-outline-variant/20">
+<div class="text-on-surface-variant font-label-md mb-1">Hold Consistency</div>
+<div class="font-headline-lg text-primary">88<span class="text-sm font-normal text-secondary">%</span></div>
+</div>
+</div>
+</div>
+<!-- Personalized Logic -->
+<div class="glass-card rounded-lg p-stack-md ambient-shadow bg-primary-container text-on-primary-container">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-tertiary-container" data-icon="lightbulb">lightbulb</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-white mb-2">Preference Insight</h3>
+<p class="font-body-md text-surface-variant leading-relaxed">
+                                    We've noticed you naturally gravitate towards shorter, high-intensity holds on Mondays, likely adapting to start-of-week energy levels.
+                                </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-background py-stack-lg border-t border-outline-variant/20">
+<div class="flex flex-col md:flex-row justify-between items-center px-container-padding max-w-7xl mx-auto">
+<div class="font-headline-md text-headline-md text-primary mb-4 md:mb-0">Mira.ai</div>
+<div class="flex gap-6">
+<a class="text-secondary font-label-sm hover:text-primary transition-opacity duration-200" href="#">Privacy Policy</a>
+<a class="text-secondary font-label-sm hover:text-primary transition-opacity duration-200" href="#">Terms of Service</a>
+<a class="text-secondary font-label-sm hover:text-primary transition-opacity duration-200" href="#">Contact</a>
+</div>
+<div class="text-secondary font-label-sm mt-4 md:mt-0">© 2024 Mira.ai Wellness. All rights reserved.</div>
+</div>
+</footer>
+</body></html>

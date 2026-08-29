@@ -1,0 +1,357 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mira.ai - Memory</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#e8f3ee",
+                        "on-secondary-container": "#636360",
+                        "primary-container": "#0e3b2e",
+                        "tertiary-fixed": "#ffe088",
+                        "on-primary-fixed": "#002117",
+                        "secondary-fixed": "#e4e2de",
+                        "tertiary": "#735c00",
+                        "on-secondary-fixed": "#1b1c1a",
+                        "on-secondary-fixed-variant": "#474744",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#414845",
+                        "secondary-container": "#e1dfdc",
+                        "surface": "#f1fcf7",
+                        "inverse-primary": "#a3d0be",
+                        "tertiary-container": "#cba72f",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-primary-container": "#7aa694",
+                        "secondary": "#5e5e5c",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c0c8c3",
+                        "primary": "#00241a",
+                        "inverse-surface": "#28332f",
+                        "surface-tint": "#3c6657",
+                        "on-background": "#141e1b",
+                        "surface-variant": "#dae5e0",
+                        "primary-fixed": "#bfecd9",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "surface-container-low": "#ebf6f1",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#4e3d00",
+                        "background": "#f1fcf7",
+                        "surface-dim": "#d1ddd8",
+                        "secondary-fixed-dim": "#c8c6c3",
+                        "surface-container": "#e5f0eb",
+                        "on-primary-fixed-variant": "#244e40",
+                        "on-surface": "#141e1b",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#a3d0be",
+                        "surface-container-highest": "#dae5e0",
+                        "surface-container-high": "#dfebe6",
+                        "surface-bright": "#f1fcf7",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "outline": "#717974"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-padding": "24px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "stack-md": "24px",
+                        "stack-lg": "40px",
+                        "stack-sm": "12px"
+                    },
+                    "fontFamily": {
+                        "label-md": [
+                            "DM Sans"
+                        ],
+                        "hero": [
+                            "Playfair Display"
+                        ],
+                        "body-lg": [
+                            "DM Sans"
+                        ],
+                        "label-sm": [
+                            "DM Sans"
+                        ],
+                        "headline-md": [
+                            "Playfair Display"
+                        ],
+                        "headline-lg": [
+                            "Playfair Display"
+                        ],
+                        "headline-lg-mobile": [
+                            "Playfair Display"
+                        ],
+                        "body-md": [
+                            "DM Sans"
+                        ]
+                    },
+                    "fontSize": {
+                        "label-md": [
+                            "14px",
+                            {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "500"
+                            }
+                        ],
+                        "hero": [
+                            "48px",
+                            {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                            }
+                        ],
+                        "body-lg": [
+                            "18px",
+                            {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "label-sm": [
+                            "12px",
+                            {
+                                "lineHeight": "16px",
+                                "fontWeight": "700"
+                            }
+                        ],
+                        "headline-md": [
+                            "24px",
+                            {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                            }
+                        ],
+                        "headline-lg": [
+                            "32px",
+                            {
+                                "lineHeight": "40px",
+                                "fontWeight": "700"
+                            }
+                        ],
+                        "headline-lg-mobile": [
+                            "28px",
+                            {
+                                "lineHeight": "36px",
+                                "fontWeight": "700"
+                            }
+                        ],
+                        "body-md": [
+                            "16px",
+                            {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .pulse-ring {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .5; transform: scale(1.1); }
+        }
+
+        /* SVG Line drawing animation */
+        .draw-line {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 5s linear forwards;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-primary-container text-surface-container-lowest min-h-screen relative overflow-hidden font-body-md antialiased selection:bg-tertiary-fixed selection:text-on-tertiary-fixed">
+<!-- Header Section -->
+<header class="w-full top-0 sticky bg-primary-container z-50">
+<div class="flex justify-between items-center px-container-padding py-stack-sm w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-gutter cursor-pointer group hover:opacity-80 transition-opacity">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/30">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A softly lit, close-up portrait of a woman (Sarah) with a serene expression, looking slightly off-camera. The lighting is warm and natural, emphasizing a calm and mindful presence. The background is a blurred, neutral earthy tone, fitting the quiet confidence and wellness aesthetic of the Mira.ai brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmaMFnPQymOcXMwcNtUHZHpCT2bgbz5_0LOWH_EzJhrbTyZGo0kJ2Rxn7r1xnoBnw4KXJA-8yFYn-NppzgXEXa3QT7nkmIv0YwpigcgtqW7_Mz6jis4jyYuPtffe1wM-CumECdCJoGgfvR4-ktgCErRT5tyrKhoNY9wqOziQ4-rmvn4DpKcme-vBNaByZCvvOHOFqvI99NJBBuh_DI6iQRhzV3kA8-mU0OM64Hy_F_cs1wqv7SxW1j">
+</div>
+</div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-primary-fixed italic tracking-tight">Mira.ai</div>
+<button class="text-primary-fixed hover:opacity-80 transition-opacity active:scale-95 transition-transform flex items-center justify-center w-10 h-10">
+<span class="material-symbols-outlined text-2xl">settings</span>
+</button>
+</div>
+</header>
+<!-- Privacy Indicator -->
+<div class="absolute top-[88px] w-full flex justify-center z-40 pointer-events-none">
+<div class="flex items-center gap-2 text-on-primary-container/80 bg-primary-container/50 backdrop-blur-sm px-4 py-1.5 rounded-full">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+<span class="font-label-md text-label-md">Everything here stays on your phone</span>
+</div>
+</div>
+<!-- Main Content Canvas (Knowledge Graph) -->
+<main class="relative w-full h-[calc(100vh-160px)] md:h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden">
+<!-- SVG Connections Layer -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 0;">
+<!-- Lines connecting from center to nodes -->
+<line class="draw-line" stroke="#a3d0be" stroke-opacity="0.3" stroke-width="0.5" x1="50%" x2="20%" y1="50%" y2="30%"></line>
+<line class="draw-line" stroke="#ffe088" stroke-opacity="0.4" stroke-width="0.5" x1="50%" x2="80%" y1="50%" y2="35%"></line>
+<line class="draw-line" stroke="#a3d0be" stroke-opacity="0.2" stroke-width="0.5" x1="50%" x2="30%" y1="50%" y2="70%"></line>
+<line class="draw-line" stroke="#a3d0be" stroke-opacity="0.3" stroke-width="0.5" x1="50%" x2="70%" y1="50%" y2="75%"></line>
+<line class="draw-line" stroke="#a3d0be" stroke-opacity="0.1" stroke-width="0.5" x1="50%" x2="85%" y1="50%" y2="60%"></line>
+<line class="draw-line" stroke="#a3d0be" stroke-opacity="0.2" stroke-width="0.5" x1="50%" x2="15%" y1="50%" y2="55%"></line>
+<!-- Interconnecting lines -->
+<line stroke="#a3d0be" stroke-opacity="0.1" stroke-width="0.5" x1="20%" x2="15%" y1="30%" y2="55%"></line>
+<line stroke="#ffe088" stroke-opacity="0.2" stroke-width="0.5" x1="80%" x2="85%" y1="35%" y2="60%"></line>
+<line stroke="#a3d0be" stroke-opacity="0.1" stroke-width="0.5" x1="70%" x2="85%" y1="75%" y2="60%"></line>
+<line stroke="#a3d0be" stroke-opacity="0.1" stroke-width="0.5" x1="30%" x2="70%" y1="70%" y2="75%"></line>
+</svg>
+<!-- Node Layer -->
+<div class="relative w-full h-full max-w-3xl mx-auto" style="z-index: 10;">
+<!-- Central Node (User) -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+<div class="relative w-24 h-24 flex items-center justify-center">
+<div class="absolute inset-0 bg-inverse-primary rounded-full opacity-10 blur-xl pulse-ring"></div>
+<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-surface-container-lowest/20 shadow-[0_0_40px_rgba(163,208,190,0.1)]">
+<img alt="Sarah - Central Node" class="w-full h-full object-cover" data-alt="A softly lit, close-up portrait of a woman (Sarah) with a serene expression, looking slightly off-camera. The lighting is warm and natural, emphasizing a calm and mindful presence. The background is a blurred, neutral earthy tone, fitting the quiet confidence and wellness aesthetic of the Mira.ai brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCWWKGGsCIA5CgnjoKGpHvZR181jWOmWfu1uxrQLMaYvI8xWaoAmbYxMK11FMIRhk5Ij4_mPXVLRffT3kEfbsmt4g_u5ECnMhcFd9CB6YX19zETtku4s4nceVrS5ucLKmeOk1gyvYxS0VCn4DzcdLYlDqq_ieK-UeIL6dKnin1WuKIrHZYSNnHCAasv7tWHAIqcZYQ04wvwySAX-poXEkRJiILBxvDgi62VCcvlfkstL3_NnIBS4Th">
+</div>
+</div>
+</div>
+<!-- Surrounding Nodes -->
+<!-- Node 1: Left knee alignment (Expanded) -->
+<div class="absolute top-[25%] left-[10%] md:left-[20%] cursor-pointer group z-30">
+<!-- Highlight Glow -->
+<div class="absolute top-0 left-0 w-4 h-4 bg-tertiary-fixed rounded-full opacity-40 blur-md -translate-x-1/2 -translate-y-1/2"></div>
+<!-- Node Dot -->
+<div class="absolute top-0 left-0 w-2 h-2 bg-tertiary-fixed rounded-full -translate-x-1/2 -translate-y-1/2 z-10 shadow-[0_0_10px_rgba(255,224,136,0.8)]"></div>
+<!-- Expanded Detail Card -->
+<div class="mt-4 ml-4 w-64 glass-card rounded-2xl p-4 shadow-[0_20px_40px_rgba(0,0,0,0.2)] transform transition-transform duration-300 hover:scale-[1.02]">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed/20 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-tertiary-fixed text-[18px]">accessibility_new</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-tertiary-fixed mb-1">Left knee alignment</h3>
+<p class="font-body-md text-[13px] leading-tight text-surface-container-lowest/80 mb-3">
+                                Noticed in 4 of your last 5 sessions.
+                            </p>
+<!-- Mini Sparkline visualization -->
+<div class="w-full h-8 flex items-end justify-between gap-1 border-b border-surface-container-lowest/10 pb-1">
+<div class="w-1/5 h-[30%] bg-surface-container-lowest/20 rounded-t-sm"></div>
+<div class="w-1/5 h-[45%] bg-surface-container-lowest/30 rounded-t-sm"></div>
+<div class="w-1/5 h-[60%] bg-surface-container-lowest/40 rounded-t-sm"></div>
+<div class="w-1/5 h-[80%] bg-tertiary-fixed/70 rounded-t-sm"></div>
+<div class="w-1/5 h-[95%] bg-tertiary-fixed rounded-t-sm relative">
+<div class="absolute -top-1 -right-1 w-2 h-2 bg-tertiary-fixed rounded-full shadow-[0_0_5px_rgba(255,224,136,1)]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Node 2: Evening practice -->
+<div class="absolute top-[35%] right-[10%] md:right-[20%] cursor-pointer group hover:scale-105 transition-transform">
+<div class="absolute top-0 left-0 w-3 h-3 bg-inverse-primary rounded-full opacity-20 blur-sm -translate-x-1/2 -translate-y-1/2"></div>
+<div class="absolute top-0 left-0 w-1.5 h-1.5 bg-inverse-primary rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+<div class="ml-4 -mt-2 font-label-md text-label-md text-surface-container-lowest/70 group-hover:text-surface-container-lowest transition-colors whitespace-nowrap">Evening practice</div>
+</div>
+<!-- Node 3: Prefers shorter holds -->
+<div class="absolute bottom-[25%] left-[20%] md:left-[30%] cursor-pointer group hover:scale-105 transition-transform">
+<div class="absolute top-0 left-0 w-3 h-3 bg-inverse-primary rounded-full opacity-20 blur-sm -translate-x-1/2 -translate-y-1/2"></div>
+<div class="absolute top-0 left-0 w-1.5 h-1.5 bg-inverse-primary rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+<div class="mr-4 -mt-2 text-right font-label-md text-label-md text-surface-container-lowest/70 group-hover:text-surface-container-lowest transition-colors whitespace-nowrap -translate-x-full">Prefers shorter holds</div>
+</div>
+<!-- Node 4: Warrior II progress -->
+<div class="absolute bottom-[20%] right-[20%] md:right-[30%] cursor-pointer group hover:scale-105 transition-transform">
+<div class="absolute top-0 left-0 w-3 h-3 bg-inverse-primary rounded-full opacity-20 blur-sm -translate-x-1/2 -translate-y-1/2"></div>
+<div class="absolute top-0 left-0 w-1.5 h-1.5 bg-inverse-primary rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+<div class="ml-4 -mt-2 font-label-md text-label-md text-surface-container-lowest/70 group-hover:text-surface-container-lowest transition-colors whitespace-nowrap">Warrior II progress</div>
+</div>
+<!-- Node 5: Breath consistency -->
+<div class="absolute top-[60%] right-[10%] md:right-[15%] cursor-pointer group hover:scale-105 transition-transform">
+<div class="absolute top-0 left-0 w-3 h-3 bg-inverse-primary rounded-full opacity-20 blur-sm -translate-x-1/2 -translate-y-1/2"></div>
+<div class="absolute top-0 left-0 w-1.5 h-1.5 bg-inverse-primary rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+<div class="ml-4 -mt-2 font-label-md text-label-md text-surface-container-lowest/70 group-hover:text-surface-container-lowest transition-colors whitespace-nowrap">Breath consistency</div>
+</div>
+<!-- Node 6: Morning focus -->
+<div class="absolute top-[55%] left-[10%] md:left-[15%] cursor-pointer group hover:scale-105 transition-transform">
+<div class="absolute top-0 left-0 w-3 h-3 bg-inverse-primary rounded-full opacity-20 blur-sm -translate-x-1/2 -translate-y-1/2"></div>
+<div class="absolute top-0 left-0 w-1.5 h-1.5 bg-inverse-primary rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+<div class="mr-4 -mt-2 text-right font-label-md text-label-md text-surface-container-lowest/70 group-hover:text-surface-container-lowest transition-colors whitespace-nowrap -translate-x-full">Morning focus</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell (Mobile Only) -->
+<nav class="md:hidden fixed bottom-stack-md left-1/2 -translate-x-1/2 z-50 flex justify-around items-center p-unit bg-surface-container/90 backdrop-blur-md shadow-[0_20px_40px_rgba(14,59,46,0.08)] w-[90%] max-w-md rounded-full">
+<!-- Inactive -->
+<a class="flex items-center justify-center text-on-surface-variant w-12 h-12 hover:scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined" data-weight="fill">home_max</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center justify-center text-on-surface-variant w-12 h-12 hover:scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined">spa</span>
+</a>
+<!-- Active Tab: Memory/Knowledge Graph (Represented by bubble_chart) -->
+<a class="flex items-center justify-center bg-primary text-on-primary rounded-full w-12 h-12 hover:scale-110 transition-transform active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">bubble_chart</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center justify-center text-on-surface-variant w-12 h-12 hover:scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined">person_2</span>
+</a>
+</nav>
+<!-- Desktop Navigation (Hidden on Mobile, simplified representation for alignment) -->
+<nav class="hidden md:flex fixed bottom-stack-lg left-1/2 -translate-x-1/2 z-50 bg-surface/50 backdrop-blur-lg px-8 py-3 rounded-full border border-surface-container-lowest/10 shadow-2xl items-center gap-8">
+<a class="text-on-surface-variant hover:text-surface-container-lowest transition-colors font-label-md text-label-md flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[20px]">home_max</span> Home
+        </a>
+<a class="text-on-surface-variant hover:text-surface-container-lowest transition-colors font-label-md text-label-md flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[20px]">spa</span> Practice
+        </a>
+<a class="text-tertiary-fixed font-label-md text-label-md flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">bubble_chart</span> Memory
+        </a>
+<a class="text-on-surface-variant hover:text-surface-container-lowest transition-colors font-label-md text-label-md flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[20px]">person_2</span> Profile
+        </a>
+</nav>
+</body></html>
