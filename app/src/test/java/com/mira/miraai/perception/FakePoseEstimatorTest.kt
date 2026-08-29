@@ -13,8 +13,9 @@ class FakePoseEstimatorTest {
         val frame = PoseFrame(mapOf(BodyJoint.LEFT_HIP to Landmark(com.mira.miraai.assessor.Point2D(0f, 0f), 1f)))
         val estimator: PoseEstimator = FakePoseEstimator(frame)
         val image: ImageProxy = mock()
+        var result: PoseFrame? = null
 
-        val result = estimator.estimate(image)
+        estimator.estimate(image) { result = it }
 
         assertEquals(frame, result)
     }
@@ -24,7 +25,7 @@ class FakePoseEstimatorTest {
         val fake = FakePoseEstimator()
         val image: ImageProxy = mock()
 
-        fake.estimate(image)
+        fake.estimate(image) {}
 
         assertSame(image, fake.lastFrameSeen)
     }

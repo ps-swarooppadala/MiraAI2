@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.SystemClock
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -30,31 +29,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
-import com.mira.miraai.assessor.ElbowCheck
-import com.mira.miraai.assessor.Point2D
+import com.mira.miraai.agent.Clock
+import com.mira.miraai.agent.CoachAgent
+import com.mira.miraai.agent.CoachIntent
+import com.mira.miraai.assessor.WarriorIIAssessor
 import com.mira.miraai.capture.CameraXController
-import com.mira.miraai.perception.MediaPipePoseEstimator
-import com.mira.miraai.perception.PoseLandmarkIndex
+import com.mira.miraai.perception.PoseEstimator
+import com.mira.miraai.perception.PoseFrame
+import com.mira.miraai.perception.Side
 import com.mira.miraai.ui.theme.MiraAITheme
+import com.mira.miraai.voice.CueTemplates
 import com.mira.miraai.voice.SpeechCoach
+import org.koin.android.ext.android.inject
 
-private const val TAG = "MiraPhase0"
-private const val COACH_LINE = "Straighten your arm."
-
-// needs tuning — placeholder, gates which landmarks are trusted for the angle check (see docs/PROGRESS.md)
-private const val LANDMARK_VISIBILITY_THRESHOLD = 0.5f
+// TODO(needs wiring): the routine/step data that should choose the practicing leg doesn't exist
+// yet (Phase 5+, Browse IA / Workout Mode). Hardcoded until then — see docs/PROGRESS.md.
+private val HARDCODED_FRONT_LEG = Side.LEFT
 
 /**
- * Phase 0 walking skeleton: CameraX -> MediaPipe PoseLandmarker (CPU delegate) -> one
- * hardcoded right-elbow angle check -> one hardcoded line via system TextToSpeech.
- * No state machine, no rule engine, no other poses — see docs/build-architecture.md Section 7.
+ * Phase 4: real camera pipeline wired to the Warrior II Assessor (Phase 1) and Coach Agent
+ * (Phase 2) via the [PoseEstimator] device-abstraction interface (Phase 3), replacing Phase 0's
+ * hardcoded single-joint `ElbowCheck` logic — build-architecture.md Section 7.
  */
 class MainActivity : ComponentActivity() {
 
+    private val poseEstimator: PoseEstimator by inject()
+
     private lateinit var cameraController: CameraXController
     private lateinit var speechCoach: SpeechCoach
-    private var poseEstimator: MediaPipePoseEstimator? = null
+    private val assessor = WarriorIIAssessor()
+    private val coachAgent = CoachAgent(clock = Clock { SystemClock.uptimeMillis() })
 
     private var frameCountInWindow = 0
     private var fpsWindowStartMs = 0L
@@ -92,40 +96,26 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun bindCameraAndPipeline(previewView: PreviewView) {
-        poseEstimator = MediaPipePoseEstimator(
-            context = this,
-            isFrontCamera = true,
-            onResult = { result -> handlePoseResult(result) },
-            onError = { message -> Log.e(TAG, "Pose estimator error: $message") },
-        )
         cameraController.start(
             lifecycleOwner = this,
             previewView = previewView,
-            onFrame = { imageProxy -> poseEstimator?.detect(imageProxy) },
+            onFrame = { imageProxy -> poseEstimator.estimate(imageProxy) { frame -> handlePoseFrame(frame) } },
         )
     }
 
-    private fun handlePoseResult(result: PoseLandmarkerResult) {
+    private fun handlePoseFrame(frame: PoseFrame) {
         recordFrameForFps()
 
-        val landmarks = result.landmarks().firstOrNull() ?: return
-        val shoulder = landmarks.getOrNull(PoseLandmarkIndex.RIGHT_SHOULDER) ?: return
-        val elbow = landmarks.getOrNull(PoseLandmarkIndex.RIGHT_ELBOW) ?: return
-        val wrist = landmarks.getOrNull(PoseLandmarkIndex.RIGHT_WRIST) ?: return
+        val verdict = assessor.assess(frame, HARDCODED_FRONT_LEG)
+        val decision = coachAgent.tick(verdict)
 
-        val allVisible = listOf(shoulder, elbow, wrist).all {
-            it.visibility().orElse(0f) >= LANDMARK_VISIBILITY_THRESHOLD
+        val line = when (decision.intent) {
+            CoachIntent.SPEAK_CUE -> CueTemplates.forIssue(decision.verdictCode!!, decision.escalation)
+            CoachIntent.CONFIRM_IMPROVEMENT -> CueTemplates.forConfirmImprovement()
+            CoachIntent.SAFETY_OVERRIDE -> CueTemplates.forSafetyOverride(decision.verdictCode!!)
+            CoachIntent.SILENT -> null
         }
-        if (!allVisible) return
-
-        val isBent = ElbowCheck.isRightArmBent(
-            Point2D(shoulder.x(), shoulder.y()),
-            Point2D(elbow.x(), elbow.y()),
-            Point2D(wrist.x(), wrist.y()),
-        )
-        if (isBent) {
-            speechCoach.speak(COACH_LINE)
-        }
+        line?.let { speechCoach.speak(it) }
     }
 
     private fun recordFrameForFps() {
@@ -134,7 +124,6 @@ class MainActivity : ComponentActivity() {
         if (fpsWindowStartMs == 0L) fpsWindowStartMs = now
         if (now - fpsWindowStartMs >= 1000L) {
             val fps = frameCountInWindow
-            Log.i(TAG, "sustained fps: $fps")
             runOnUiThread { fpsState.intValue = fps }
             frameCountInWindow = 0
             fpsWindowStartMs = now
@@ -143,7 +132,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        poseEstimator?.close()
         speechCoach.shutdown()
         cameraController.shutdown()
     }
@@ -163,7 +151,7 @@ private fun Phase0Screen(
                 factory = { ctx -> PreviewView(ctx).also { onPreviewViewReady(it) } },
             )
             Text(
-                text = "Phase 0 walking skeleton — $fps fps",
+                text = "Phase 4 — real pipeline — $fps fps",
                 color = Color.White,
                 modifier = Modifier
                     .align(Alignment.TopStart)

@@ -1,6 +1,8 @@
 package com.mira.miraai.di
 
 import com.google.mediapipe.tasks.core.Delegate
+import com.mira.miraai.perception.MediaPipePoseEstimator
+import com.mira.miraai.perception.PoseEstimator
 import com.mira.miraai.voice.LLMProvider
 import com.mira.miraai.voice.STTProvider
 import com.mira.miraai.voice.StubLLMProvider
@@ -21,6 +23,9 @@ import org.koin.dsl.module
  */
 val aiModule = module {
     single(named("poseDelegate")) { Delegate.GPU }
+    single<PoseEstimator> {
+        MediaPipePoseEstimator(androidContext(), isFrontCamera = true, delegate = get(named("poseDelegate")))
+    }
     single<TTSProvider> { SystemTTSProvider(androidContext()) }
     single<LLMProvider> { StubLLMProvider() }
     single<STTProvider> { StubSTTProvider() }

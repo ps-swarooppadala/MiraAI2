@@ -7,8 +7,8 @@ class FakePoseEstimator(var nextFrame: PoseFrame = PoseFrame(emptyMap())) : Pose
     var lastFrameSeen: ImageProxy? = null
         private set
 
-    override fun estimate(frame: ImageProxy): PoseFrame {
+    override fun estimate(frame: ImageProxy, onResult: (PoseFrame) -> Unit) {
         lastFrameSeen = frame
-        return nextFrame
+        onResult(nextFrame)
     }
 }

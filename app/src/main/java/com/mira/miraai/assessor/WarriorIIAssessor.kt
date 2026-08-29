@@ -14,8 +14,8 @@ data class WarriorIIVerdict(
 
 /**
  * Deterministic Warrior II rule engine. Pure Kotlin — no Android/CameraX/Compose imports
- * (CLAUDE.md). Replaces the Phase 0 placeholder in ElbowCheck.kt once the camera pipeline is
- * rewired to it in Phase 4 (build-architecture.md Section 7).
+ * (CLAUDE.md). Wired to the real camera pipeline in Phase 4 (build-architecture.md Section 7),
+ * replacing the Phase 0 `ElbowCheck` placeholder (removed that phase).
  */
 class WarriorIIAssessor {
 

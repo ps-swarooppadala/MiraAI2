@@ -1,6 +1,8 @@
 package com.mira.miraai.di
 
 import com.google.mediapipe.tasks.core.Delegate
+import com.mira.miraai.perception.MediaPipePoseEstimator
+import com.mira.miraai.perception.PoseEstimator
 import com.mira.miraai.voice.LLMProvider
 import com.mira.miraai.voice.STTProvider
 import com.mira.miraai.voice.StubLLMProvider
@@ -18,6 +20,10 @@ import org.koin.dsl.module
 val aiModule = module {
     // LiteRT GPU/CPU delegate on devPhone; CPU is the safe default until GPU is profiled.
     single(named("poseDelegate")) { Delegate.CPU }
+    // Front camera only, per CameraXController's current DEFAULT_FRONT_CAMERA binding.
+    single<PoseEstimator> {
+        MediaPipePoseEstimator(androidContext(), isFrontCamera = true, delegate = get(named("poseDelegate")))
+    }
     single<TTSProvider> { SystemTTSProvider(androidContext()) }
     single<LLMProvider> { StubLLMProvider() }
     single<STTProvider> { StubSTTProvider() }

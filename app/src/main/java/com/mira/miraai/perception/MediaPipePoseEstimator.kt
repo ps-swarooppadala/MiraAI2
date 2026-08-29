@@ -12,31 +12,53 @@ import com.google.mediapipe.tasks.core.Delegate
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+import com.mira.miraai.assessor.Point2D
 
 private const val TAG = "MiraPoseEstimator"
 private const val MODEL_ASSET_PATH = "pose_landmarker_lite.task"
+
+/** Maps the 10 [BodyJoint]s the Assessor layer tracks to BlazePose landmark indices. */
+private val JOINT_INDEX: Map<BodyJoint, Int> = mapOf(
+    BodyJoint.LEFT_SHOULDER to PoseLandmarkIndex.LEFT_SHOULDER,
+    BodyJoint.RIGHT_SHOULDER to PoseLandmarkIndex.RIGHT_SHOULDER,
+    BodyJoint.LEFT_WRIST to PoseLandmarkIndex.LEFT_WRIST,
+    BodyJoint.RIGHT_WRIST to PoseLandmarkIndex.RIGHT_WRIST,
+    BodyJoint.LEFT_HIP to PoseLandmarkIndex.LEFT_HIP,
+    BodyJoint.RIGHT_HIP to PoseLandmarkIndex.RIGHT_HIP,
+    BodyJoint.LEFT_KNEE to PoseLandmarkIndex.LEFT_KNEE,
+    BodyJoint.RIGHT_KNEE to PoseLandmarkIndex.RIGHT_KNEE,
+    BodyJoint.LEFT_ANKLE to PoseLandmarkIndex.LEFT_ANKLE,
+    BodyJoint.RIGHT_ANKLE to PoseLandmarkIndex.RIGHT_ANKLE,
+)
+
+/** Converts MediaPipe's raw result into the pure-Kotlin [PoseFrame] the Assessor consumes. */
+private fun PoseLandmarkerResult.toPoseFrame(): PoseFrame {
+    val detected = landmarks().firstOrNull() ?: return PoseFrame(emptyMap())
+    val landmarkMap = JOINT_INDEX.mapNotNull { (joint, index) ->
+        detected.getOrNull(index)?.let { lm ->
+            joint to Landmark(Point2D(lm.x(), lm.y()), lm.visibility().orElse(0f))
+        }
+    }.toMap()
+    return PoseFrame(landmarkMap)
+}
 
 /**
  * Thin wrapper around MediaPipe's PoseLandmarker task, running LiteRT.
  * [delegate] is supplied by the flavor's DI module — `Delegate.CPU`/`Delegate.GPU` for
  * devPhone, and the NPU-routed delegate for iqoo once wired (build-architecture.md Section 2).
  *
- * **Known deviation (flagged, not silently patched — see docs/PROGRESS.md):** this class does
- * not implement the [PoseEstimator] interface. The interface's contract
- * (`estimate(frame): PoseFrame`, synchronous) doesn't fit MediaPipe's `LIVE_STREAM` running
- * mode this class uses (async, callback-based, needed for Phase 0's measured 25-31 FPS on
- * devPhone). Reconciling the two — either an async `PoseEstimator` contract or a synchronous
- * adapter — is Phase 4's job when the camera pipeline is rewired onto the Assessor/Coach Agent,
- * not Phase 3's.
+ * Implements [PoseEstimator] per Phase 4's reconciliation of the interface's async contract
+ * with MediaPipe's `LIVE_STREAM` running mode (see [PoseEstimator]'s doc comment).
  */
 class MediaPipePoseEstimator(
     context: Context,
     private val isFrontCamera: Boolean,
     delegate: Delegate = Delegate.CPU,
-    private val onResult: (PoseLandmarkerResult) -> Unit,
-    private val onError: (String) -> Unit,
-) {
+) : PoseEstimator {
     private val landmarker: PoseLandmarker
+
+    @Volatile
+    private var pendingResultCallback: ((PoseFrame) -> Unit)? = null
 
     init {
         val baseOptions = BaseOptions.builder()
@@ -49,24 +71,22 @@ class MediaPipePoseEstimator(
             .setMinPoseDetectionConfidence(0.5f)
             .setMinPosePresenceConfidence(0.5f)
             .setMinTrackingConfidence(0.5f)
-            .setResultListener { result, _ -> onResult(result) }
-            .setErrorListener { error ->
-                Log.e(TAG, "Pose landmarker error", error)
-                onError(error.message ?: "unknown pose landmarker error")
-            }
+            .setResultListener { result, _ -> pendingResultCallback?.invoke(result.toPoseFrame()) }
+            .setErrorListener { error -> Log.e(TAG, "Pose landmarker error", error) }
             .build()
         landmarker = PoseLandmarker.createFromOptions(context, options)
     }
 
-    /** Consumes and closes [imageProxy]; must be called from ImageAnalysis's analyzer callback. */
-    fun detect(imageProxy: ImageProxy) {
+    /** Consumes and closes [frame]; must be called from ImageAnalysis's analyzer callback. */
+    override fun estimate(frame: ImageProxy, onResult: (PoseFrame) -> Unit) {
+        pendingResultCallback = onResult
         val frameTimeMs = SystemClock.uptimeMillis()
-        val bitmapBuffer = Bitmap.createBitmap(imageProxy.width, imageProxy.height, Bitmap.Config.ARGB_8888)
-        imageProxy.use { bitmapBuffer.copyPixelsFromBuffer(it.planes[0].buffer) }
+        val bitmapBuffer = Bitmap.createBitmap(frame.width, frame.height, Bitmap.Config.ARGB_8888)
+        frame.use { bitmapBuffer.copyPixelsFromBuffer(it.planes[0].buffer) }
 
         val matrix = Matrix().apply {
-            postRotate(imageProxy.imageInfo.rotationDegrees.toFloat())
-            if (isFrontCamera) postScale(-1f, 1f, imageProxy.width.toFloat(), imageProxy.height.toFloat())
+            postRotate(frame.imageInfo.rotationDegrees.toFloat())
+            if (isFrontCamera) postScale(-1f, 1f, frame.width.toFloat(), frame.height.toFloat())
         }
         val rotatedBitmap = Bitmap.createBitmap(
             bitmapBuffer, 0, 0, bitmapBuffer.width, bitmapBuffer.height, matrix, true
