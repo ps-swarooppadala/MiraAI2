@@ -175,8 +175,19 @@ private fun nextFocusLine(verdict: VerdictCode?): String = when (verdict) {
     VerdictCode.FRONT_KNEE_PAST_ANKLE -> "keeping your front knee over your ankle."
     VerdictCode.BACK_LEG_BENT -> "keeping your back leg straight."
     VerdictCode.ARMS_NOT_LEVEL -> "keeping your arms level."
+    VerdictCode.ARMS_NOT_STRAIGHT -> "straightening your arms through the elbows."
     VerdictCode.TORSO_LEANING -> "keeping your torso upright."
     VerdictCode.INSUFFICIENT_VISIBILITY -> "staying fully in frame."
+    VerdictCode.TREE_STANDING_LEG_BENT -> "keeping your standing leg straight."
+    VerdictCode.TREE_LIFTED_FOOT_TOO_LOW -> "lifting your foot higher against your standing leg."
+    VerdictCode.TREE_HIPS_NOT_LEVEL -> "keeping your hips level."
+    VerdictCode.TREE_ARMS_NOT_AT_CHEST -> "bringing your palms together at your chest."
+    VerdictCode.TREE_HEAD_TILTED -> "leveling your head and holding a steady gaze."
+    VerdictCode.CHAIR_NOT_LOW_ENOUGH -> "sinking your hips lower."
+    VerdictCode.CHAIR_KNEES_PAST_TOES -> "keeping your knees back over your ankles."
+    VerdictCode.CHAIR_TORSO_TOO_FORWARD -> "lifting your chest and keeping your torso more upright."
+    VerdictCode.CHAIR_ARMS_NOT_RAISED -> "reaching your arms further overhead."
+    VerdictCode.CHAIR_ARMS_NOT_STRAIGHT -> "straightening your arms through the elbows."
 }
 
 @Preview(showBackground = true)

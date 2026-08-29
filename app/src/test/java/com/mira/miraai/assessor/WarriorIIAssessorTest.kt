@@ -32,6 +32,8 @@ class WarriorIIAssessorTest {
             BodyJoint.RIGHT_ANKLE to landmark(0.75f, 0.90f),
             BodyJoint.LEFT_SHOULDER to landmark(0.575f, 0.20f),
             BodyJoint.RIGHT_SHOULDER to landmark(0.775f, 0.20f),
+            BodyJoint.LEFT_ELBOW to landmark(0.4875f, 0.20f),
+            BodyJoint.RIGHT_ELBOW to landmark(0.8625f, 0.20f),
             BodyJoint.LEFT_WRIST to landmark(0.4f, 0.20f),
             BodyJoint.RIGHT_WRIST to landmark(0.95f, 0.20f),
         )
@@ -49,8 +51,11 @@ class WarriorIIAssessorTest {
             BodyJoint.RIGHT_ANKLE -> BodyJoint.LEFT_ANKLE
             BodyJoint.LEFT_SHOULDER -> BodyJoint.RIGHT_SHOULDER
             BodyJoint.RIGHT_SHOULDER -> BodyJoint.LEFT_SHOULDER
+            BodyJoint.LEFT_ELBOW -> BodyJoint.RIGHT_ELBOW
+            BodyJoint.RIGHT_ELBOW -> BodyJoint.LEFT_ELBOW
             BodyJoint.LEFT_WRIST -> BodyJoint.RIGHT_WRIST
             BodyJoint.RIGHT_WRIST -> BodyJoint.LEFT_WRIST
+            else -> throw IllegalArgumentException("unmirrored joint: $joint")
         }
         return frame.entries.associate { (joint, lm) ->
             flip(joint) to Landmark(Point2D(1f - lm.position.x, lm.position.y), lm.visibility)
@@ -135,9 +140,19 @@ class WarriorIIAssessorTest {
         val landmarks = baseline(Side.LEFT).with(
             BodyJoint.LEFT_SHOULDER to landmark(0.475f, 0.20f),
             BodyJoint.RIGHT_SHOULDER to landmark(0.675f, 0.20f),
+            BodyJoint.LEFT_ELBOW to landmark(0.4375f, 0.20f),
+            BodyJoint.RIGHT_ELBOW to landmark(0.8125f, 0.20f),
         )
         val verdict = assessor.assess(frame(landmarks), Side.LEFT)
         assertEquals(VerdictCode.TORSO_LEANING, verdict.verdictCode)
+        assertFalse(verdict.hasCriticalIssue)
+    }
+
+    @Test
+    fun assess_returnsArmsNotStraight_whenAnElbowBendsUnderTarget() {
+        val landmarks = baseline(Side.LEFT).with(BodyJoint.LEFT_ELBOW to landmark(0.4875f, 0.28f))
+        val verdict = assessor.assess(frame(landmarks), Side.LEFT)
+        assertEquals(VerdictCode.ARMS_NOT_STRAIGHT, verdict.verdictCode)
         assertFalse(verdict.hasCriticalIssue)
     }
 
@@ -157,6 +172,8 @@ class WarriorIIAssessorTest {
             BodyJoint.LEFT_ANKLE to landmark(0.72f, 0.70f),
             BodyJoint.LEFT_SHOULDER to landmark(0.475f, 0.20f),
             BodyJoint.RIGHT_SHOULDER to landmark(0.675f, 0.20f),
+            BodyJoint.LEFT_ELBOW to landmark(0.4375f, 0.20f),
+            BodyJoint.RIGHT_ELBOW to landmark(0.8125f, 0.20f),
         )
         val verdict = assessor.assess(frame(landmarks), Side.LEFT)
         assertEquals(VerdictCode.FRONT_KNEE_PAST_ANKLE, verdict.verdictCode)
@@ -168,6 +185,8 @@ class WarriorIIAssessorTest {
         val landmarks = baseline(Side.LEFT).with(
             BodyJoint.LEFT_SHOULDER to landmark(0.475f, 0.20f),
             BodyJoint.RIGHT_SHOULDER to landmark(0.675f, 0.20f),
+            BodyJoint.LEFT_ELBOW to landmark(0.4375f, 0.20f),
+            BodyJoint.RIGHT_ELBOW to landmark(0.8125f, 0.20f),
         )
         val verdict = assessor.assess(frame(landmarks), Side.LEFT)
         assertEquals(VerdictCode.TORSO_LEANING, verdict.verdictCode)

@@ -5,8 +5,13 @@ package com.mira.miraai.perception
  * [BodyJoint]s the Warrior II Assessor tracks (build-architecture.md Section 2/7 Phase 4).
  */
 object PoseLandmarkIndex {
+    const val NOSE = 0
+    const val LEFT_EAR = 7
+    const val RIGHT_EAR = 8
     const val LEFT_SHOULDER = 11
     const val RIGHT_SHOULDER = 12
+    const val LEFT_ELBOW = 13
+    const val RIGHT_ELBOW = 14
     const val LEFT_WRIST = 15
     const val RIGHT_WRIST = 16
     const val LEFT_HIP = 23

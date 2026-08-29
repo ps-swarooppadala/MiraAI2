@@ -19,6 +19,11 @@ import com.mira.miraai.ui.theme.MiraColors
 
 /** Skeleton line segments drawn over the camera preview — feature-spec.md Section 8.1 item 2 / F11. */
 private val SKELETON_CONNECTIONS = listOf(
+    // Neck/head — approximated from shoulders and nose/ears since BlazePose has no neck point.
+    BodyJoint.LEFT_SHOULDER to BodyJoint.NOSE,
+    BodyJoint.RIGHT_SHOULDER to BodyJoint.NOSE,
+    // Head-tilt reference line: level when the head is upright, sloped when it's tilted.
+    BodyJoint.LEFT_EAR to BodyJoint.RIGHT_EAR,
     BodyJoint.LEFT_SHOULDER to BodyJoint.RIGHT_SHOULDER,
     BodyJoint.LEFT_SHOULDER to BodyJoint.LEFT_HIP,
     BodyJoint.RIGHT_SHOULDER to BodyJoint.RIGHT_HIP,
@@ -27,8 +32,11 @@ private val SKELETON_CONNECTIONS = listOf(
     BodyJoint.LEFT_KNEE to BodyJoint.LEFT_ANKLE,
     BodyJoint.RIGHT_HIP to BodyJoint.RIGHT_KNEE,
     BodyJoint.RIGHT_KNEE to BodyJoint.RIGHT_ANKLE,
-    BodyJoint.LEFT_SHOULDER to BodyJoint.LEFT_WRIST,
-    BodyJoint.RIGHT_SHOULDER to BodyJoint.RIGHT_WRIST,
+    // Arms — routed through the elbow instead of a single shoulder-to-wrist line.
+    BodyJoint.LEFT_SHOULDER to BodyJoint.LEFT_ELBOW,
+    BodyJoint.LEFT_ELBOW to BodyJoint.LEFT_WRIST,
+    BodyJoint.RIGHT_SHOULDER to BodyJoint.RIGHT_ELBOW,
+    BodyJoint.RIGHT_ELBOW to BodyJoint.RIGHT_WRIST,
 )
 
 /**
@@ -38,14 +46,24 @@ private val SKELETON_CONNECTIONS = listOf(
  * mirrored to match the front-camera preview (see [com.mira.miraai.perception.MediaPipePoseEstimator]),
  * so they map directly onto this composable's bounds with no extra flip.
  */
+/**
+ * Skeleton color when form is currently correct — the "wow" signal per 2026-08-29 user feedback.
+ * Pushed toward a more saturated, higher-hue neon (was 0xFF4CFFB0) so it reads as an electric
+ * glow against the camera feed rather than a flat mint green.
+ */
+private val GOOD_FORM_GREEN = androidx.compose.ui.graphics.Color(0xFF39FF8F)
+
 @Composable
 fun PoseOverlay(
     frame: PoseFrame?,
     highlightJoint: BodyJoint? = null,
     angleDeg: Float? = null,
+    isGoodForm: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     if (frame == null) return
+
+    val skeletonColor = if (isGoodForm) GOOD_FORM_GREEN else MiraColors.accent
 
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -57,10 +75,10 @@ fun PoseOverlay(
                     landmarkB.visibility >= WarriorIIThresholds.MIN_LANDMARK_VISIBILITY
                 ) {
                     drawLine(
-                        color = MiraColors.accent,
+                        color = skeletonColor,
                         start = toOffset(landmarkA.position.x, landmarkA.position.y),
                         end = toOffset(landmarkB.position.x, landmarkB.position.y),
-                        strokeWidth = 3.dp.toPx(),
+                        strokeWidth = (if (isGoodForm) 4.dp else 3.dp).toPx(),
                         cap = StrokeCap.Round,
                     )
                 }
@@ -70,7 +88,7 @@ fun PoseOverlay(
                 if (landmark.visibility >= WarriorIIThresholds.MIN_LANDMARK_VISIBILITY) {
                     val isHighlighted = joint == highlightJoint
                     drawCircle(
-                        color = if (isHighlighted) MiraColors.tertiaryContainer else MiraColors.accent,
+                        color = if (isHighlighted) MiraColors.tertiaryContainer else skeletonColor,
                         radius = (if (isHighlighted) 7.dp else 4.dp).toPx(),
                         center = toOffset(landmark.position.x, landmark.position.y),
                     )

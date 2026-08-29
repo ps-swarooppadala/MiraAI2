@@ -7,10 +7,10 @@ import kotlin.math.abs
 
 /** Single-frame Warrior II assessment result — feature-spec.md Section 10.1 Assessor contract. */
 data class WarriorIIVerdict(
-    val verdictCode: VerdictCode,
-    val hasCriticalIssue: Boolean,
-    val confidence: Float
-)
+    override val verdictCode: VerdictCode,
+    override val hasCriticalIssue: Boolean,
+    override val confidence: Float
+) : Verdict
 
 /**
  * Deterministic Warrior II rule engine. Pure Kotlin — no Android/CameraX/Compose imports
@@ -39,6 +39,8 @@ class WarriorIIAssessor {
         val backAnkle = position(frame, ankleJoint(backLeg))
         val leftShoulder = position(frame, BodyJoint.LEFT_SHOULDER)
         val rightShoulder = position(frame, BodyJoint.RIGHT_SHOULDER)
+        val leftElbow = position(frame, BodyJoint.LEFT_ELBOW)
+        val rightElbow = position(frame, BodyJoint.RIGHT_ELBOW)
         val leftWrist = position(frame, BodyJoint.LEFT_WRIST)
         val rightWrist = position(frame, BodyJoint.RIGHT_WRIST)
 
@@ -62,6 +64,11 @@ class WarriorIIAssessor {
             val rightArmOffset = abs(rightWrist.y - rightShoulder.y)
             if (leftArmOffset > WarriorIIThresholds.ARM_LEVEL_TOLERANCE || rightArmOffset > WarriorIIThresholds.ARM_LEVEL_TOLERANCE) {
                 add(VerdictCode.ARMS_NOT_LEVEL)
+            }
+            val leftArmAngle = angleDegrees(leftShoulder, leftElbow, leftWrist)
+            val rightArmAngle = angleDegrees(rightShoulder, rightElbow, rightWrist)
+            if (leftArmAngle < WarriorIIThresholds.ARM_STRAIGHT_MIN_DEG || rightArmAngle < WarriorIIThresholds.ARM_STRAIGHT_MIN_DEG) {
+                add(VerdictCode.ARMS_NOT_STRAIGHT)
             }
             val shoulderMidX = (leftShoulder.x + rightShoulder.x) / 2f
             val hipMidX = (frontHip.x + backHip.x) / 2f
@@ -89,6 +96,7 @@ class WarriorIIAssessor {
         hipJoint(frontLeg), kneeJoint(frontLeg), ankleJoint(frontLeg),
         hipJoint(backLeg), kneeJoint(backLeg), ankleJoint(backLeg),
         BodyJoint.LEFT_SHOULDER, BodyJoint.RIGHT_SHOULDER,
+        BodyJoint.LEFT_ELBOW, BodyJoint.RIGHT_ELBOW,
         BodyJoint.LEFT_WRIST, BodyJoint.RIGHT_WRIST,
     )
 

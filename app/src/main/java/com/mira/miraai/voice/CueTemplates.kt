@@ -41,6 +41,10 @@ object CueTemplates {
             "Stretch both arms out to the same height.",
             "Even out your arms — shoulder height on both sides.",
         ),
+        VerdictCode.ARMS_NOT_STRAIGHT to listOf(
+            "Straighten your arms out through the elbows.",
+            "Lengthen both arms — no bend in the elbows.",
+        ),
         VerdictCode.TORSO_LEANING to listOf(
             "Keep your torso upright over your hips.",
             "Stack your shoulders back over your hips.",
@@ -50,6 +54,46 @@ object CueTemplates {
             "I can't quite see your whole body — step back a little.",
             "Let's get you fully in frame, step back for me.",
             "Try backing up a step so I can see you head to toe.",
+        ),
+        VerdictCode.TREE_STANDING_LEG_BENT to listOf(
+            "Straighten that standing leg a bit more.",
+            "Press firmly through your standing leg — lock it in.",
+        ),
+        VerdictCode.TREE_LIFTED_FOOT_TOO_LOW to listOf(
+            "Lift your foot a little higher against your standing leg.",
+            "Press your foot up higher on your inner leg.",
+        ),
+        VerdictCode.TREE_HIPS_NOT_LEVEL to listOf(
+            "Level out your hips.",
+            "Square your hips back to center.",
+        ),
+        VerdictCode.TREE_ARMS_NOT_AT_CHEST to listOf(
+            "Bring your palms together at your chest.",
+            "Draw your hands in to meet at your heart.",
+        ),
+        VerdictCode.TREE_HEAD_TILTED to listOf(
+            "Level your head and find a steady point to focus on.",
+            "Straighten your head — pick a spot ahead and hold your gaze there.",
+        ),
+        VerdictCode.CHAIR_NOT_LOW_ENOUGH to listOf(
+            "Sink your hips lower, like sitting into a chair.",
+            "Bend your knees a bit more.",
+        ),
+        VerdictCode.CHAIR_KNEES_PAST_TOES to listOf(
+            "Sit your hips back so your knees stay over your ankles.",
+            "Shift your weight into your heels a touch.",
+        ),
+        VerdictCode.CHAIR_TORSO_TOO_FORWARD to listOf(
+            "Lift your chest and keep your torso a bit more upright.",
+            "Draw your chest up — less forward fold.",
+        ),
+        VerdictCode.CHAIR_ARMS_NOT_RAISED to listOf(
+            "Reach your arms further overhead.",
+            "Stretch both arms up toward the ceiling.",
+        ),
+        VerdictCode.CHAIR_ARMS_NOT_STRAIGHT to listOf(
+            "Straighten your arms out through the elbows.",
+            "Lengthen both arms overhead, no bend in the elbows.",
         ),
     )
     private val FIRM: Map<VerdictCode, List<String>> = mapOf(
@@ -73,6 +117,9 @@ object CueTemplates {
             "Arms need to be level — reach out through both hands.",
             "Both arms all the way out, same height.",
         ),
+        VerdictCode.ARMS_NOT_STRAIGHT to listOf(
+            "Lock your arms straight — no bend in the elbows.",
+        ),
         VerdictCode.TORSO_LEANING to listOf(
             "You're leaning — stack your shoulders over your hips.",
             "Straighten back up through the torso.",
@@ -81,6 +128,37 @@ object CueTemplates {
             "I still can't see you clearly — step back a bit more.",
             "Still out of frame — a couple more steps back should do it.",
             "Not quite — keep backing up until your whole body's in view.",
+        ),
+        VerdictCode.TREE_STANDING_LEG_BENT to listOf(
+            "Your standing leg needs to be straight — lock it out now.",
+            "Really press into that standing leg and straighten it.",
+        ),
+        VerdictCode.TREE_LIFTED_FOOT_TOO_LOW to listOf(
+            "Your foot's slipping low — press it up higher, right now.",
+        ),
+        VerdictCode.TREE_HIPS_NOT_LEVEL to listOf(
+            "Your hips are tilted — square them back to center now.",
+        ),
+        VerdictCode.TREE_ARMS_NOT_AT_CHEST to listOf(
+            "Bring your hands all the way in to your chest.",
+        ),
+        VerdictCode.TREE_HEAD_TILTED to listOf(
+            "Your head's tilted — level it out and fix your gaze on one spot.",
+        ),
+        VerdictCode.CHAIR_NOT_LOW_ENOUGH to listOf(
+            "You need to sink lower — really bend those knees.",
+        ),
+        VerdictCode.CHAIR_KNEES_PAST_TOES to listOf(
+            "Your knees are too far forward — sit your hips back now.",
+        ),
+        VerdictCode.CHAIR_TORSO_TOO_FORWARD to listOf(
+            "You're folding too far forward — lift your chest up now.",
+        ),
+        VerdictCode.CHAIR_ARMS_NOT_RAISED to listOf(
+            "Get those arms all the way overhead.",
+        ),
+        VerdictCode.CHAIR_ARMS_NOT_STRAIGHT to listOf(
+            "Lock your arms straight overhead — no bend in the elbows.",
         ),
     )
     private val CONFIRM_IMPROVEMENT_LINES = listOf(

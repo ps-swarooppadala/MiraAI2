@@ -19,8 +19,13 @@ private const val MODEL_ASSET_PATH = "pose_landmarker_lite.task"
 
 /** Maps the 10 [BodyJoint]s the Assessor layer tracks to BlazePose landmark indices. */
 private val JOINT_INDEX: Map<BodyJoint, Int> = mapOf(
+    BodyJoint.NOSE to PoseLandmarkIndex.NOSE,
+    BodyJoint.LEFT_EAR to PoseLandmarkIndex.LEFT_EAR,
+    BodyJoint.RIGHT_EAR to PoseLandmarkIndex.RIGHT_EAR,
     BodyJoint.LEFT_SHOULDER to PoseLandmarkIndex.LEFT_SHOULDER,
     BodyJoint.RIGHT_SHOULDER to PoseLandmarkIndex.RIGHT_SHOULDER,
+    BodyJoint.LEFT_ELBOW to PoseLandmarkIndex.LEFT_ELBOW,
+    BodyJoint.RIGHT_ELBOW to PoseLandmarkIndex.RIGHT_ELBOW,
     BodyJoint.LEFT_WRIST to PoseLandmarkIndex.LEFT_WRIST,
     BodyJoint.RIGHT_WRIST to PoseLandmarkIndex.RIGHT_WRIST,
     BodyJoint.LEFT_HIP to PoseLandmarkIndex.LEFT_HIP,
