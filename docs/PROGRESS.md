@@ -93,8 +93,16 @@
 
   **Still deferred, not touched:** Tree Pose and Chair Pose Assessor rule sets remain unbuilt, same known limitation as above — this follow-up explicitly did not build them (per instruction). `foundations_full_body` stays preview-only until that separately-tracked gap is closed.
 
+- **Phase 6 follow-up 2: on-device bug reports fixed ahead of Phase 7.** The user ran "Warrior II — Quick Practice" on-device (vivo I2501) and reported two issues, both fixed as small, targeted changes rather than folded into Phase 7's scope:
+
+  **Fixed — no visual reference for the target pose.** The Player only ever showed the user's *own* live skeleton (Phase 6 follow-up 1's overlay) plus spoken cues — nothing showed what the pose is actually supposed to look like. Added `ui/components/PoseReferenceDiagram.kt`: a small static stick-figure card (hand-authored joint coordinates, not derived from a photo/illustration asset — none exist yet, same placeholder-art gap flagged in Phase 5) rendered in the top-right corner of `WorkoutPlayerScreen` over the camera stage. Currently hardcoded to the Warrior-II-left-front-leg shape since that's the only pose with rule-set/routine support; **needs generalizing to a per-pose reference (keyed off `poseId`/`side`) once a second pose gets an Assessor rule set**, flagged here rather than guessed now.
+
+  **Fixed — screen would dim/lock mid-workout.** Neither `WorkoutPlayerScreen` nor `FramingAssistantScreen` kept the screen awake, so Android's normal display timeout could black out the screen mid-hold with no free hand to tap it awake. Both screens now set `view.keepScreenOn = true` via a `DisposableEffect` (Compose `LocalView`) for as long as they're composed, clearing it on dispose — no manifest/window-flag changes, no effect on any other screen.
+
+  No new unit tests: both are UI-only (a static Canvas diagram, a view property toggle), consistent with this codebase's existing screens being covered by their own composables rather than screenshot/UI tests. Verified via `./gradlew build` + `installDevPhoneDebug` on-device by the user.
+
 ## In progress
 (none)
 
 ## Not started
-Everything else — see docs/build-architecture.md Section 7 phase table. Next: Phase 7 (Voice output: Piper + system TTS fallback), which is also a natural point to revisit `voice/CueTemplates.kt`'s placeholder wording wholesale. Before that: the Phase 6 follow-up's on-device verification (overlay tracking + the new Warrior-II-only routine's playthrough) is still outstanding — see that entry above. The deferred golden-fixture regression test (flagged under Phase 4) should also still be picked up whenever on-device access is available.
+Everything else — see docs/build-architecture.md Section 7 phase table. Next: Phase 7 (Voice output: Piper + system TTS fallback), which is also a natural point to revisit `voice/CueTemplates.kt`'s placeholder wording wholesale. The deferred golden-fixture regression test (flagged under Phase 4) and the Phase 6 follow-up 1's on-device overlay-tracking verification should also still be picked up whenever there's time for them.

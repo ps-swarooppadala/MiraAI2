@@ -23,12 +23,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,6 +39,7 @@ import androidx.compose.foundation.Canvas
 import com.mira.miraai.perception.BodyJoint
 import com.mira.miraai.perception.PoseFrame
 import com.mira.miraai.ui.components.PoseOverlay
+import com.mira.miraai.ui.components.PoseReferenceDiagram
 import com.mira.miraai.ui.theme.MiraColors
 import com.mira.miraai.ui.theme.MiraSpacing
 import com.mira.miraai.ui.theme.MiraType
@@ -76,6 +79,14 @@ fun WorkoutPlayerScreen(
     onPauseToggle: () -> Unit,
     onEndWorkoutClick: () -> Unit,
 ) {
+    // Keep the screen from dimming/locking mid-hold — a paused-on-black-screen phone is a
+    // broken workout, and the user has no free hand to keep tapping it awake.
+    val view = LocalView.current
+    DisposableEffect(view) {
+        view.keepScreenOn = true
+        onDispose { view.keepScreenOn = false }
+    }
+
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         if (hasPermission) {
             AndroidView(
@@ -88,6 +99,14 @@ fun WorkoutPlayerScreen(
                 angleDeg = currentAngleDeg,
                 modifier = Modifier.fillMaxSize(),
             )
+            if (poseDisplayName.isNotBlank()) {
+                PoseReferenceDiagram(
+                    poseDisplayName = poseDisplayName,
+                    modifier = Modifier
+                        .padding(top = 72.dp, end = MiraSpacing.containerPadding)
+                        .align(Alignment.TopEnd),
+                )
+            }
         } else {
             Column(
                 modifier = Modifier.fillMaxSize().padding(MiraSpacing.containerPadding),
