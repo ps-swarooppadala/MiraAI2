@@ -65,6 +65,12 @@
   - `RoutineDetailScreen`'s "Start Workout" CTA and `SetupTipsScreen`'s "I'm ready" CTA both currently take a bare `onClick` lambda with no navigation/session behavior wired — that's Phase 6 (`WorkoutSessionState` + player) territory.
   - `HomeScreen`'s "Continue last routine" card and "Recommended for you" section both take their data as plain parameters (`lastRoutine: Routine?`, `recommendedRoutines: List<Routine>>`) — no session-history read yet, since Room/local storage doesn't exist until Phase 9. Callers should pass `null`/`emptyList()` until then.
 
+- **Phase 5 addendum: temporary navigation for on-device review of the Phase 5 screens.** Phase 5's Home/Category Browse/Routine Detail/Setup Tips screens were real and tested but unreachable — `MainActivity` still booted straight into the Phase 4 camera-pipeline demo, so there was no way to actually see them on-device. Added a `NavHost` (`androidx-navigation-compose`, already a declared-but-unused dependency from Phase 5) directly in `MainActivity.kt` wiring `Home -> Category Browse -> Routine Detail -> Setup Tips`, with a `HomeScreen` overlay button labeled "Camera Demo (temp)" — deliberately unstyled (plain Material `Button` defaults, red/white, not `MiraColors`) so it reads unmistakably as scaffolding — that routes into the unchanged Phase 4 `Phase0Screen` composable.
+
+  **THIS IS TEMPORARY AND WILL BE REPLACED, NOT EXTENDED.** It stops at Setup Tips on purpose: `SetupTipsScreen`'s "I'm ready" button shows a toast ("Framing Assistant + Player aren't built yet — Phase 6") instead of navigating further, since Language Selection, Framing Assistant, the Workout Mode Player, and the `hasSeenSetupTips` skip flag are all Phase 6+ per build-architecture.md Section 7. `HomeScreen`'s Freestyle hero card similarly toasts instead of navigating (Freestyle is Phase 8). When Phase 6 builds the real navigation graph (with `WorkoutSessionState`-driven routing, not toast stubs), it should replace this `MiraNavHost`/`Routes` object wholesale rather than growing routes onto it — the temp camera-demo route and its button should be deleted at that point, not carried forward.
+
+  No new tests: this is UI wiring with no new business logic (route table + toast stubs), consistent with Phase 5's screens already being covered by their own composables' existing coverage and the `content/` package's 11 tests. 59/59 tests still pass on both flavors; `assembleDevPhoneDebug` builds clean.
+
 ## In progress
 (none)
 
