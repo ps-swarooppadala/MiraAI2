@@ -25,6 +25,8 @@ class CoachAgent(private val clock: Clock, private val config: CoachAgentThresho
     private var lastCuedVerdictCode: VerdictCode? = null
     private var uncorrectedCount = 0
     private var currentEscalation = CueEscalation.NORMAL
+    private var lastSafetyVerdictCode: VerdictCode? = null
+    private var safetyRepeatCount = 0
 
     fun pause() {
         isPaused = true
@@ -54,7 +56,9 @@ class CoachAgent(private val clock: Clock, private val config: CoachAgentThresho
             return CoachDecision(CoachIntent.SILENT, null)
         }
         lastSafetyTimestampMs = now
-        return CoachDecision(CoachIntent.SAFETY_OVERRIDE, verdict.verdictCode)
+        safetyRepeatCount = if (verdict.verdictCode == lastSafetyVerdictCode) safetyRepeatCount + 1 else 0
+        lastSafetyVerdictCode = verdict.verdictCode
+        return CoachDecision(CoachIntent.SAFETY_OVERRIDE, verdict.verdictCode, repeatIndex = safetyRepeatCount)
     }
 
     private fun handleGoodForm(verdict: WarriorIIVerdict): CoachDecision {
@@ -82,7 +86,7 @@ class CoachAgent(private val clock: Clock, private val config: CoachAgentThresho
         currentEscalation = if (uncorrectedCount >= config.escalationThreshold) CueEscalation.FIRM else CueEscalation.NORMAL
         lastCueTimestampMs = now
 
-        return CoachDecision(CoachIntent.SPEAK_CUE, verdict.verdictCode, currentEscalation)
+        return CoachDecision(CoachIntent.SPEAK_CUE, verdict.verdictCode, currentEscalation, repeatIndex = uncorrectedCount - 1)
     }
 }
 

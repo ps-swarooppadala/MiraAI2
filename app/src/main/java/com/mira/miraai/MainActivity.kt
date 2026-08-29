@@ -38,6 +38,7 @@ import com.mira.miraai.agent.SessionSummary
 import com.mira.miraai.agent.WorkoutSessionEngine
 import com.mira.miraai.agent.WorkoutSessionState
 import com.mira.miraai.assessor.WarriorIIAssessor
+import com.mira.miraai.assessor.VerdictCode
 import com.mira.miraai.assessor.WarriorIIVerdict
 import com.mira.miraai.capture.CameraXController
 import com.mira.miraai.content.ContentRepository
@@ -121,6 +122,7 @@ class MainActivity : ComponentActivity() {
     private var pendingSummary: SessionSummary? = null
     private val playerPoseFrameState = mutableStateOf<PoseFrame?>(null)
     private val playerAngleDegState = mutableFloatStateOf(Float.NaN)
+    private val playerIsGoodFormState = mutableStateOf(false)
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -198,6 +200,7 @@ class MainActivity : ComponentActivity() {
         playerUiState.value = null
         playerPoseFrameState.value = null
         playerAngleDegState.floatValue = Float.NaN
+        playerIsGoodFormState.value = false
     }
 
     fun playerState(): WorkoutSessionState? = playerUiState.value
@@ -206,6 +209,7 @@ class MainActivity : ComponentActivity() {
     fun currentEngine(): WorkoutSessionEngine? = engine
     fun playerPoseFrame(): PoseFrame? = playerPoseFrameState.value
     fun playerAngleDeg(): Float? = playerAngleDegState.floatValue.takeUnless { it.isNaN() }
+    fun playerIsGoodForm(): Boolean = playerIsGoodFormState.value
 
     fun bindCameraForPlayer(previewView: PreviewView) {
         cameraController.start(
@@ -221,6 +225,7 @@ class MainActivity : ComponentActivity() {
         val deltaMs = if (playerLastFrameMs == 0L) 0L else now - playerLastFrameMs
         playerLastFrameMs = now
 
+        val previousPhase = playerUiState.value?.phase
         val step = activeEngine.currentStep()
         val isWarriorII = step?.poseId == "warrior_ii" && step.side != null
         val verdict: WarriorIIVerdict? = if (isWarriorII) assessor.assess(frame, step!!.side!!) else null
@@ -230,17 +235,32 @@ class MainActivity : ComponentActivity() {
         val newState = activeEngine.tick(deltaMs, verdict, decision)
 
         val line = when (decision?.intent) {
-            CoachIntent.SPEAK_CUE -> CueTemplates.forIssue(decision.verdictCode!!, decision.escalation)
-            CoachIntent.CONFIRM_IMPROVEMENT -> CueTemplates.forConfirmImprovement()
-            CoachIntent.SAFETY_OVERRIDE -> CueTemplates.forSafetyOverride(decision.verdictCode!!)
+            CoachIntent.SPEAK_CUE -> CueTemplates.forIssue(decision.verdictCode!!, decision.escalation, decision.repeatIndex)
+            CoachIntent.CONFIRM_IMPROVEMENT -> CueTemplates.forConfirmImprovement(decision.repeatIndex)
+            CoachIntent.SAFETY_OVERRIDE -> CueTemplates.forSafetyOverride(decision.verdictCode!!, decision.repeatIndex)
             CoachIntent.SILENT, null -> null
         }
         line?.let { ttsProvider.speak(it, Lang.EN) }
+
+        // Just finished a hold clean (Section 8.6 rest transition) — tell the user to relax and
+        // what's next, not just show it silently on screen.
+        if (previousPhase != SessionPhase.REST && newState.phase == SessionPhase.REST) {
+            val nextStep = activeEngine.currentStep()
+            val isSwitchingSides = nextStep != null && step != null &&
+                nextStep.poseId == step.poseId && nextStep.side != step.side
+            ttsProvider.speak(
+                CueTemplates.forStepComplete(isSwitchingSides, variantSeed = newState.currentStepIndex),
+                Lang.EN,
+            )
+        }
+
+        val isGoodForm = verdict?.verdictCode == VerdictCode.GOOD_FORM
 
         runOnUiThread {
             playerUiState.value = newState
             playerPoseFrameState.value = frame
             playerAngleDegState.floatValue = angleDeg ?: Float.NaN
+            playerIsGoodFormState.value = isGoodForm
             if (line != null) cueLineState.value = line
             if (newState.phase == SessionPhase.SUMMARY) {
                 pendingSummary = activeEngine.buildSummary()
@@ -398,6 +418,7 @@ private fun MiraNavHost(
                     poseFrame = activity.playerPoseFrame(),
                     highlightJoint = frontKneeJointFor(step),
                     currentAngleDeg = activity.playerAngleDeg(),
+                    isGoodForm = activity.playerIsGoodForm(),
                     onGrantPermission = onGrantPermission,
                     onPreviewViewReady = { previewView -> activity.bindCameraForPlayer(previewView) },
                     onPauseToggle = { activity.togglePause() },

@@ -1,7 +1,10 @@
 package com.mira.miraai.ui.player
 
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,10 +27,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalView
@@ -74,6 +79,7 @@ fun WorkoutPlayerScreen(
     poseFrame: PoseFrame? = null,
     highlightJoint: BodyJoint? = null,
     currentAngleDeg: Float? = null,
+    isGoodForm: Boolean = false,
     onGrantPermission: () -> Unit,
     onPreviewViewReady: (PreviewView) -> Unit,
     onPauseToggle: () -> Unit,
@@ -107,6 +113,7 @@ fun WorkoutPlayerScreen(
                         .align(Alignment.TopEnd),
                 )
             }
+            GoldenFormGlow(visible = isGoodForm && !isResting && !isPaused, modifier = Modifier.fillMaxSize())
         } else {
             Column(
                 modifier = Modifier.fillMaxSize().padding(MiraSpacing.containerPadding),
@@ -219,6 +226,29 @@ private fun RestOverlay(restLabel: String?) {
         style = MiraType.headlineLgMobile,
         color = Color.White,
         textAlign = TextAlign.Center,
+    )
+}
+
+/**
+ * Golden hue over the camera stage while the user's form is assessed as good (`GOOD_FORM`) — a
+ * "you've got it, hold there" visual cue that doesn't rely on the spoken confirmation alone.
+ * Fades in/out rather than snapping so it doesn't flicker on single-frame verdict noise.
+ */
+@Composable
+private fun GoldenFormGlow(visible: Boolean, modifier: Modifier = Modifier) {
+    val alpha by animateFloatAsState(targetValue = if (visible) 1f else 0f, animationSpec = tween(400), label = "goldenGlowAlpha")
+    if (alpha <= 0f) return
+
+    val gold = Color(0xFFE6BE8A)
+    Box(
+        modifier = modifier
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(gold.copy(alpha = 0.28f * alpha), Color.Transparent),
+                    radius = 900f,
+                ),
+            )
+            .border(width = 4.dp, color = gold.copy(alpha = 0.8f * alpha)),
     )
 }
 
