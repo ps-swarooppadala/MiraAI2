@@ -1,9 +1,12 @@
 package com.mira.miraai.di
 
+import android.util.Log
 import com.google.mediapipe.tasks.core.Delegate
 import com.mira.miraai.perception.MediaPipePoseEstimator
 import com.mira.miraai.perception.PoseEstimator
+import com.mira.miraai.voice.FallbackTTSProvider
 import com.mira.miraai.voice.LLMProvider
+import com.mira.miraai.voice.PiperTTSProvider
 import com.mira.miraai.voice.STTProvider
 import com.mira.miraai.voice.StubLLMProvider
 import com.mira.miraai.voice.StubSTTProvider
@@ -24,7 +27,16 @@ val aiModule = module {
     single<PoseEstimator> {
         MediaPipePoseEstimator(androidContext(), isFrontCamera = true, delegate = get(named("poseDelegate")))
     }
-    single<TTSProvider> { SystemTTSProvider(androidContext()) }
+    // Piper primary, system TTS as the explicit (not silent) fallback — build-architecture.md
+    // Section 2.1. PiperTTSProvider always reports unavailable until a real voice model/runtime
+    // is bundled (see its class doc) — this composition is what makes that swap a one-line change.
+    single<TTSProvider> {
+        FallbackTTSProvider(
+            primary = PiperTTSProvider(androidContext()),
+            fallback = SystemTTSProvider(androidContext()),
+            onFallback = { error -> Log.w("Mira.TTS", "Piper unavailable, using system TTS fallback", error) },
+        )
+    }
     single<LLMProvider> { StubLLMProvider() }
     single<STTProvider> { StubSTTProvider() }
 }

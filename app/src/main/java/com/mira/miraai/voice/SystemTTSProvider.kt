@@ -9,7 +9,7 @@ import java.util.Locale
  * build-architecture.md Section 2's flavor table ("Piper (CPU/QNN) or system TTS fallback").
  * Piper integration is Phase 7 scope; both flavors bind this provider until then.
  */
-class SystemTTSProvider(context: Context) : TTSProvider {
+class SystemTTSProvider(context: Context) : TTSProvider, TTSShutdown {
     private var isReady = false
     private val tts: TextToSpeech = TextToSpeech(context.applicationContext) { status ->
         isReady = status == TextToSpeech.SUCCESS
@@ -22,7 +22,7 @@ class SystemTTSProvider(context: Context) : TTSProvider {
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "mira_tts_provider")
     }
 
-    fun shutdown() {
+    override fun shutdown() {
         tts.stop()
         tts.shutdown()
     }

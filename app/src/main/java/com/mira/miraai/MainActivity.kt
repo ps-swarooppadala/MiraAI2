@@ -56,7 +56,9 @@ import com.mira.miraai.ui.setup.SetupTipsScreen
 import com.mira.miraai.ui.summary.SessionSummaryScreen
 import com.mira.miraai.ui.theme.MiraAITheme
 import com.mira.miraai.voice.CueTemplates
-import com.mira.miraai.voice.SpeechCoach
+import com.mira.miraai.voice.Lang
+import com.mira.miraai.voice.TTSProvider
+import com.mira.miraai.voice.TTSShutdown
 import org.koin.android.ext.android.inject
 
 /**
@@ -93,9 +95,9 @@ private object Routes {
 class MainActivity : ComponentActivity() {
 
     private val poseEstimator: PoseEstimator by inject()
+    private val ttsProvider: TTSProvider by inject()
 
     private lateinit var cameraController: CameraXController
-    private lateinit var speechCoach: SpeechCoach
     private lateinit var contentRepository: ContentRepository
     private val assessor = WarriorIIAssessor()
     private var coachAgent = CoachAgent(clock = Clock { SystemClock.uptimeMillis() })
@@ -130,7 +132,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         cameraController = CameraXController(this)
-        speechCoach = SpeechCoach(this)
         contentRepository = loadContentRepositoryFromAssets(this)
 
         hasPermissionState.value = ContextCompat.checkSelfPermission(
@@ -234,7 +235,7 @@ class MainActivity : ComponentActivity() {
             CoachIntent.SAFETY_OVERRIDE -> CueTemplates.forSafetyOverride(decision.verdictCode!!)
             CoachIntent.SILENT, null -> null
         }
-        line?.let { speechCoach.speak(it) }
+        line?.let { ttsProvider.speak(it, Lang.EN) }
 
         runOnUiThread {
             playerUiState.value = newState
@@ -270,7 +271,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        speechCoach.shutdown()
+        (ttsProvider as? TTSShutdown)?.shutdown()
         cameraController.shutdown()
     }
 }
