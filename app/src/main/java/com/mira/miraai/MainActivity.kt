@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.SystemClock
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -44,12 +42,19 @@ import com.mira.miraai.capture.CameraXController
 import com.mira.miraai.content.ContentRepository
 import com.mira.miraai.content.loadContentRepositoryFromAssets
 import com.mira.miraai.agent.ExpandedStep
+import com.mira.miraai.agent.freestyle.ActionSchema
+import com.mira.miraai.agent.freestyle.AgentResponse
+import com.mira.miraai.agent.freestyle.FreestyleHarness
+import com.mira.miraai.agent.freestyle.SessionContext
+import com.mira.miraai.content.Routine
 import com.mira.miraai.perception.BodyJoint
 import com.mira.miraai.perception.PoseEstimator
 import com.mira.miraai.perception.PoseFrame
 import com.mira.miraai.perception.Side
 import com.mira.miraai.ui.category.CategoryBrowseScreen
 import com.mira.miraai.ui.framing.FramingAssistantScreen
+import com.mira.miraai.ui.freestyle.FreestyleScreen
+import com.mira.miraai.ui.freestyle.OrbState
 import com.mira.miraai.ui.home.HomeScreen
 import com.mira.miraai.ui.player.WorkoutPlayerScreen
 import com.mira.miraai.ui.routinedetail.RoutineDetailScreen
@@ -58,8 +63,12 @@ import com.mira.miraai.ui.summary.SessionSummaryScreen
 import com.mira.miraai.ui.theme.MiraAITheme
 import com.mira.miraai.voice.CueTemplates
 import com.mira.miraai.voice.Lang
+import com.mira.miraai.voice.LLMProvider
+import com.mira.miraai.voice.STTProvider
 import com.mira.miraai.voice.TTSProvider
 import com.mira.miraai.voice.TTSShutdown
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 /**
@@ -78,6 +87,7 @@ private object Routes {
     const val FRAMING = "framing/{routineId}"
     const val PLAYER = "player"
     const val SUMMARY = "summary"
+    const val FREESTYLE = "freestyle"
 
     fun category(id: String) = "category/$id"
     fun routineDetail(id: String) = "routineDetail/$id"
@@ -97,14 +107,23 @@ class MainActivity : ComponentActivity() {
 
     private val poseEstimator: PoseEstimator by inject()
     private val ttsProvider: TTSProvider by inject()
+    private val llmProvider: LLMProvider by inject()
+    private val sttProvider: STTProvider by inject()
 
     private lateinit var cameraController: CameraXController
     private lateinit var contentRepository: ContentRepository
     private val assessor = WarriorIIAssessor()
     private var coachAgent = CoachAgent(clock = Clock { SystemClock.uptimeMillis() })
     private val framingGate = FramingGate()
+    private val freestyleHarness by lazy { FreestyleHarness(llmProvider) }
 
     private val hasPermissionState = mutableStateOf(false)
+
+    // --- Freestyle Conversation state (US-8) ---
+    private val freestyleCaptionState = mutableStateOf("")
+    private val freestyleOrbState = mutableStateOf(OrbState.GREETING)
+    private val freestyleMicMutedState = mutableStateOf(false)
+    private val freestyleResolvedRoutineState = mutableStateOf<Routine?>(null)
 
     // --- Framing Assistant state ---
     private var framingGateState = FramingGateState()
@@ -289,6 +308,59 @@ class MainActivity : ComponentActivity() {
 
     fun pendingSummary(): SessionSummary = pendingSummary ?: SessionSummary(0L, emptyList(), null)
 
+    // --- Freestyle Conversation (US-8) ---
+
+    fun freestyleCaption(): String = freestyleCaptionState.value
+    fun freestyleOrb(): OrbState = freestyleOrbState.value
+    fun freestyleMicMuted(): Boolean = freestyleMicMutedState.value
+    fun freestyleResolvedRoutine(): Routine? = freestyleResolvedRoutineState.value
+    fun clearFreestyleResolvedRoutine() {
+        freestyleResolvedRoutineState.value = null
+    }
+
+    fun toggleFreestyleMicMute() {
+        freestyleMicMutedState.value = !freestyleMicMutedState.value
+    }
+
+    /**
+     * Mira greets first, unprompted, per US-8's Given/When/Then — the greeting line is built
+     * from [SessionContext] (time of day + last routine) rather than a bare template. Real
+     * time-of-day/last-routine history isn't wired yet (no session history until Phase 9, per
+     * Phase 5's HomeScreen note), so this uses the same "evening" + no-last-routine defaults
+     * HomeScreen already hardcodes — swap both together once Phase 9 lands.
+     */
+    fun startFreestyle() {
+        freestyleResolvedRoutineState.value = null
+        freestyleMicMutedState.value = false
+        val greeting = "Good evening — ready to unwind? Want a quick warm-up before we move into a full routine?"
+        freestyleCaptionState.value = greeting
+        freestyleOrbState.value = OrbState.SPEAKING
+        ttsProvider.speak(greeting, Lang.EN)
+        freestyleOrbState.value = OrbState.LISTENING
+        sttProvider.startListening { transcript -> handleFreestyleTranscript(transcript) }
+    }
+
+    private fun handleFreestyleTranscript(transcript: String) {
+        freestyleOrbState.value = OrbState.THINKING
+        val context = SessionContext(timeOfDay = "evening", lastRoutineId = null, relevantFacts = emptyList())
+        lifecycleScope.launch {
+            val response: AgentResponse = freestyleHarness.resolve(transcript, context)
+            freestyleCaptionState.value = response.spokenLine
+            freestyleOrbState.value = OrbState.SPEAKING
+            ttsProvider.speak(response.spokenLine, Lang.EN)
+
+            when (response.action) {
+                ActionSchema.START_WORKOUT, ActionSchema.SUGGEST_WARMUP -> {
+                    val routine = response.resolvedRoutineId?.let { contentRepository.routineById(it) }
+                    freestyleResolvedRoutineState.value = routine
+                }
+                else -> {
+                    freestyleOrbState.value = OrbState.LISTENING
+                }
+            }
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         (ttsProvider as? TTSShutdown)?.shutdown()
@@ -304,8 +376,6 @@ private fun MiraNavHost(
     hasPermission: Boolean,
     onGrantPermission: () -> Unit,
 ) {
-    val context = LocalContext.current
-
     NavHost(navController = navController, startDestination = Routes.HOME) {
         composable(Routes.HOME) {
             HomeScreen(
@@ -315,7 +385,8 @@ private fun MiraNavHost(
                 // No session history yet (Room lands in Phase 9) — see docs/PROGRESS.md.
                 lastRoutine = null,
                 onFreestyleClick = {
-                    Toast.makeText(context, "Freestyle isn't built yet — Phase 8", Toast.LENGTH_SHORT).show()
+                    activity.startFreestyle()
+                    navController.navigate(Routes.FREESTYLE)
                 },
                 onContinueClick = { routine -> navController.navigate(Routes.routineDetail(routine.id)) },
                 onCategoryClick = { category -> navController.navigate(Routes.category(category.id)) },
@@ -428,6 +499,27 @@ private fun MiraNavHost(
                     },
                 )
             }
+        }
+
+        composable(Routes.FREESTYLE) {
+            val resolvedRoutine = activity.freestyleResolvedRoutine()
+
+            // Section 8.8: Freestyle hands off into Setup Tips -> Framing exactly as Browse
+            // does — it does not skip the Framing gate.
+            LaunchedEffect(resolvedRoutine) {
+                if (resolvedRoutine != null) {
+                    activity.clearFreestyleResolvedRoutine()
+                    navController.navigate(Routes.setupTips(resolvedRoutine.id))
+                }
+            }
+
+            FreestyleScreen(
+                captionText = activity.freestyleCaption(),
+                orbState = activity.freestyleOrb(),
+                isMicMuted = activity.freestyleMicMuted(),
+                onMicMuteToggle = { activity.toggleFreestyleMicMute() },
+                onBackClick = { navController.popBackStack(Routes.HOME, inclusive = false) },
+            )
         }
 
         composable(Routes.SUMMARY) {
