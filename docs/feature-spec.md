@@ -409,7 +409,7 @@ Pause → "End Workout" → Summary showing attempted steps only.
 ### 9.3 Suggested package structure
 
 ```
-com.mira.ai
+com.mira.miraai
 ├── content/            // Category, Routine, Pose data classes + ContentRepository + bundled JSON
 ├── capture/             // CameraX setup, ImageAnalysis pipeline
 ├── perception/          // Pose model wrapper (LiteRT/QNN), landmark extraction
@@ -541,7 +541,7 @@ Bounded action space (Section 11.1 item 6) is extended to include Freestyle acti
 
 ## 16. Naming Note
 
-All references to "PranaAI" in prior planning documents are superseded by **Mira.ai**. Apply this name to: app label, package `com.mira.ai`, TTS-spoken product name, splash screen, and all marketing/pitch copy.
+All references to "PranaAI" in prior planning documents are superseded by **Mira.ai**. Apply this name to: app label, package `com.mira.miraai`, TTS-spoken product name, splash screen, and all marketing/pitch copy.
 
 ---
 

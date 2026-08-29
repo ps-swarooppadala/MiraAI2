@@ -28,7 +28,7 @@ repo to know what to do next.
 **Principle: business logic never knows which phone it's on. Only a Gradle flavor +
 its DI module does.**
 
-### Interfaces (package: `com.mira.ai.perception` / `com.mira.ai.voice`)
+### Interfaces (package: `com.mira.miraai.perception` / `com.mira.miraai.voice`)
 
 ```kotlin
 interface PoseEstimator {
@@ -229,8 +229,8 @@ Updated after every phase, every tool, no exceptions:
 | Phase | Deliverable | Test strategy |
 |---|---|---|
 | 0 | Walking skeleton: CameraX → pose (default delegate) → one hardcoded angle check → one hardcoded TTS line, `devPhone` flavor | Manual on-device smoke test |
-| 1 | Assessor core: Warrior II rules, pure Kotlin, `com.mira.ai.assessor` | JUnit, from feature-spec.md Given/When/Then |
-| 2 | Coach Agent state machine: pure Kotlin, `com.mira.ai.agent` | JUnit, fake clock + scripted verdict stream |
+| 1 | Assessor core: Warrior II rules, pure Kotlin, `com.mira.miraai.assessor` | JUnit, from feature-spec.md Given/When/Then |
+| 2 | Coach Agent state machine: pure Kotlin, `com.mira.miraai.agent` | JUnit, fake clock + scripted verdict stream |
 | 3 | Device abstraction: interfaces + `devPhone`/`iqoo` flavors + DI modules | Contract tests against fakes |
 | 4 | Real camera pipeline wired to Phase 1+2 on `devPhone` | On-device integration test, golden landmark fixtures |
 | 5 | Content model + Browse IA: Home/Category/Routine Detail | Compose UI tests for navigation |
