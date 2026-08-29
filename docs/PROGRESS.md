@@ -13,8 +13,21 @@
   - `ElbowCheck.kt` (Phase 0's placeholder single-joint check) is left untouched — `MainActivity.kt` still calls it, and rewiring the camera pipeline onto `WarriorIIAssessor` is explicitly Phase 4's job ("Real camera pipeline wired to Phase 1+2"), not Phase 1's. Remove `ElbowCheck.kt` when Phase 4 does that rewiring.
   - `BOTH`-side sequencing and rep-counting are Coach Agent/Routine Sequencer territory (Phase 2), not covered here.
 
+- **Phase 2: Coach Agent state machine, pure Kotlin.** `CoachAgent.tick(WarriorIIVerdict)` (`com.mira.miraai.agent`) implements the guardrail rules named in build-architecture.md Section 3 (cue cooldown, escalate-only-on-persistence, confirm improvement, safety overrides everything, never coach below confidence threshold). Fed by a `Clock` seam and a fake scripted `WarriorIIVerdict` stream in tests — no camera, no LLM. 18/18 new JUnit tests pass (`CoachAgentTest.kt`); 42/42 total across the suite.
+
+  **Doc gap found, not resolved by this phase:** feature-spec.md Section 10.2 says "8 hard guardrail rules unchanged" but only 6 are named anywhere in either doc (build-architecture.md:120-122): one cue per cooldown, escalate only on persistence, confirm improvement, safety overrides everything, never coach below confidence threshold, never diagnose. "Never diagnose" is a Mouth/template-language constraint, not agent state, so it isn't modeled in `CoachAgent`. The other 2 rules aren't written down anywhere found — needs a doc pass to either name them or correct "8" to "6".
+
+  **Ordering decisions made where the spec is silent** (see `CoachAgent.kt` doc comment): pause outranks safety override (a paused workout never speaks or mutates state, no exception carved out in Section 8.2); safety cues bypass both the cooldown and the confidence gate, confirm-improvement cues bypass only the cooldown (not the confidence gate — don't praise on garbage tracking data).
+
+  **Placeholder constants needing on-device tuning** (`CoachAgentThresholds.kt`, all explicitly commented as placeholders): `CUE_COOLDOWN_MS` (8000), `SAFETY_COOLDOWN_MS` (3000), `MIN_CONFIDENCE_TO_COACH` (0.6), `ESCALATION_THRESHOLD` (2 uncorrected cues). None are sourced from feature-spec.md.
+
+  **Scope notes for later phases:**
+  - `CoachAgent` is coupled to `WarriorIIVerdict` directly (Phase 1's only concrete verdict type) rather than a generic `Verdict` interface. If/when a second pose's assessor produces its own verdict type (Phase 13+), extract a shared interface at that point rather than guessing its shape now.
+  - Confirm/escalation tracking treats safety cues as a separate track from regular issue cues (a safety interruption doesn't reset or advance the regular-issue persistence count). Not spec-mandated, just the simplest correct reading.
+  - Routine sequencing, `WorkoutSessionState` wiring, and the Freestyle `ActionSchema` path are out of scope for Phase 2 — that's Phase 3+ (device abstraction) and Phase 8 (Freestyle) per the phase table.
+
 ## In progress
 (none)
 
 ## Not started
-Everything else — see docs/feature-spec.md Section 15 build priority. Next: Phase 2 (Coach Agent state machine, pure Kotlin, `com.mira.miraai.agent`).
+Everything else — see docs/build-architecture.md Section 7 phase table. Next: Phase 3 (Device abstraction: interfaces + `devPhone`/`iqoo` flavors + DI modules).
