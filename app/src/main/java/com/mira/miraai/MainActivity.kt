@@ -10,29 +10,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -40,8 +28,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mira.miraai.agent.Clock
 import com.mira.miraai.agent.CoachAgent
+import com.mira.miraai.agent.CoachAgentThresholds
+import com.mira.miraai.agent.CoachDecision
 import com.mira.miraai.agent.CoachIntent
+import com.mira.miraai.agent.FramingGate
+import com.mira.miraai.agent.FramingGateState
+import com.mira.miraai.agent.SessionPhase
+import com.mira.miraai.agent.SessionSummary
+import com.mira.miraai.agent.WorkoutSessionEngine
+import com.mira.miraai.agent.WorkoutSessionState
 import com.mira.miraai.assessor.WarriorIIAssessor
+import com.mira.miraai.assessor.WarriorIIVerdict
 import com.mira.miraai.capture.CameraXController
 import com.mira.miraai.content.ContentRepository
 import com.mira.miraai.content.loadContentRepositoryFromAssets
@@ -49,45 +46,47 @@ import com.mira.miraai.perception.PoseEstimator
 import com.mira.miraai.perception.PoseFrame
 import com.mira.miraai.perception.Side
 import com.mira.miraai.ui.category.CategoryBrowseScreen
+import com.mira.miraai.ui.framing.FramingAssistantScreen
 import com.mira.miraai.ui.home.HomeScreen
+import com.mira.miraai.ui.player.WorkoutPlayerScreen
 import com.mira.miraai.ui.routinedetail.RoutineDetailScreen
 import com.mira.miraai.ui.setup.SetupTipsScreen
+import com.mira.miraai.ui.summary.SessionSummaryScreen
 import com.mira.miraai.ui.theme.MiraAITheme
 import com.mira.miraai.voice.CueTemplates
 import com.mira.miraai.voice.SpeechCoach
 import org.koin.android.ext.android.inject
 
-// TODO(needs wiring): the routine/step data that should choose the practicing leg doesn't exist
-// yet (Phase 5+, Browse IA / Workout Mode). Hardcoded until then — see docs/PROGRESS.md.
-private val HARDCODED_FRONT_LEG = Side.LEFT
-
 /**
  * Navigation routes.
  *
- * TEMPORARY (Phase 5 on-device review only — see docs/PROGRESS.md): this NavHost only wires
- * Home -> Category Browse -> Routine Detail -> Setup Tips, plus a scaffolding-only route into
- * the Phase 4 camera-pipeline demo. It stops at Setup Tips on purpose — the real
- * Setup Tips -> Framing Assistant -> Player -> Summary chain, Language Selection, and the
- * "hasSeenSetupTips" skip flag are all Phase 6+ per build-architecture.md Section 7's phase
- * table. This whole NavHost is expected to be replaced (not extended in place) once that real
- * graph exists.
+ * Phase 6 replaces the Phase 5-addendum stub routes (which toasted instead of navigating past
+ * Setup Tips) with the real Setup Tips -> Framing Assistant -> Player -> Summary chain per
+ * feature-spec.md Section 3's IA diagram. The temporary camera-demo route/button from Phase 5
+ * is removed now that Framing/Player give the app a real entry into the coaching flow.
  */
 private object Routes {
     const val HOME = "home"
     const val CATEGORY = "category/{categoryId}"
     const val ROUTINE_DETAIL = "routineDetail/{routineId}"
-    const val SETUP_TIPS = "setupTips"
-    const val CAMERA_DEMO_TEMP = "cameraDemoTemp"
+    const val SETUP_TIPS = "setupTips/{routineId}"
+    const val FRAMING = "framing/{routineId}"
+    const val PLAYER = "player"
+    const val SUMMARY = "summary"
 
     fun category(id: String) = "category/$id"
     fun routineDetail(id: String) = "routineDetail/$id"
+    fun setupTips(id: String) = "setupTips/$id"
+    fun framing(id: String) = "framing/$id"
 }
 
 /**
- * Phase 4: real camera pipeline wired to the Warrior II Assessor (Phase 1) and Coach Agent
- * (Phase 2) via the [PoseEstimator] device-abstraction interface (Phase 3). Phase 5 added the
- * content-backed Browse screens; this Activity now boots into Home and reaches the camera
- * pipeline only via the temporary debug route described in [Routes] above.
+ * Phase 6: Framing Assistant (US-5), Workout Mode Player (US-6/Section 8), and Session Summary
+ * (US-7), wired to the Phase 1 [WarriorIIAssessor] and Phase 2 [CoachAgent] via the Phase 3/4
+ * [PoseEstimator] device abstraction. [WorkoutSessionEngine] (pure Kotlin, unit-tested) owns the
+ * routine-sequencing/step-phase FSM; this Activity is the one Android-coupled place that wires a
+ * live camera frame stream into it, mirroring Phase 4's `handlePoseFrame` pattern but per-screen
+ * (Framing needs only a confidence signal; the Player needs the full Assessor+CoachAgent tick).
  */
 class MainActivity : ComponentActivity() {
 
@@ -97,12 +96,24 @@ class MainActivity : ComponentActivity() {
     private lateinit var speechCoach: SpeechCoach
     private lateinit var contentRepository: ContentRepository
     private val assessor = WarriorIIAssessor()
-    private val coachAgent = CoachAgent(clock = Clock { SystemClock.uptimeMillis() })
+    private var coachAgent = CoachAgent(clock = Clock { SystemClock.uptimeMillis() })
+    private val framingGate = FramingGate()
 
-    private var frameCountInWindow = 0
-    private var fpsWindowStartMs = 0L
-    private val fpsState = mutableIntStateOf(0)
     private val hasPermissionState = mutableStateOf(false)
+
+    // --- Framing Assistant state ---
+    private var framingGateState = FramingGateState()
+    private var framingLastFrameMs = 0L
+    private val framingConfidenceState = mutableFloatStateOf(0f)
+    private val framingReadyState = mutableStateOf(false)
+
+    // --- Workout Mode Player state ---
+    private var engine: WorkoutSessionEngine? = null
+    private var playerLastFrameMs = 0L
+    private val playerUiState = mutableStateOf<WorkoutSessionState?>(null)
+    private val cueLineState = mutableStateOf<String?>(null)
+    private val sessionCompleteState = mutableStateOf(false)
+    private var pendingSummary: SessionSummary? = null
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -126,52 +137,125 @@ class MainActivity : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     val navController = rememberNavController()
                     MiraNavHost(
+                        activity = this,
                         navController = navController,
                         contentRepository = contentRepository,
                         hasPermission = hasPermissionState.value,
-                        fps = fpsState.intValue,
                         onGrantPermission = { requestPermissionLauncher.launch(Manifest.permission.CAMERA) },
-                        onPreviewViewReady = { previewView -> bindCameraAndPipeline(previewView) },
                     )
                 }
             }
         }
     }
 
-    private fun bindCameraAndPipeline(previewView: PreviewView) {
+    fun resetFramingGate() {
+        framingGateState = FramingGateState()
+        framingLastFrameMs = 0L
+        framingConfidenceState.floatValue = 0f
+        framingReadyState.value = false
+    }
+
+    fun framingConfidence() = framingConfidenceState.floatValue
+    fun framingReady() = framingReadyState.value
+
+    fun bindCameraForFraming(previewView: PreviewView) {
         cameraController.start(
             lifecycleOwner = this,
             previewView = previewView,
-            onFrame = { imageProxy -> poseEstimator.estimate(imageProxy) { frame -> handlePoseFrame(frame) } },
+            onFrame = { imageProxy -> poseEstimator.estimate(imageProxy) { frame -> handleFramingFrame(frame) } },
         )
     }
 
-    private fun handlePoseFrame(frame: PoseFrame) {
-        recordFrameForFps()
+    private fun handleFramingFrame(frame: PoseFrame) {
+        val now = SystemClock.uptimeMillis()
+        val deltaMs = if (framingLastFrameMs == 0L) 0L else now - framingLastFrameMs
+        framingLastFrameMs = now
 
-        val verdict = assessor.assess(frame, HARDCODED_FRONT_LEG)
-        val decision = coachAgent.tick(verdict)
+        val visibilities = frame.landmarks.values.map { it.visibility }
+        val confidence = if (visibilities.isEmpty()) 0f else visibilities.average().toFloat()
+        framingGateState = framingGate.tick(framingGateState, confidence, deltaMs)
 
-        val line = when (decision.intent) {
+        runOnUiThread {
+            framingConfidenceState.floatValue = confidence
+            framingReadyState.value = framingGateState.isReady
+        }
+    }
+
+    fun startWorkout(routine: com.mira.miraai.content.Routine) {
+        engine = WorkoutSessionEngine(routine)
+        coachAgent = CoachAgent(clock = Clock { SystemClock.uptimeMillis() })
+        playerLastFrameMs = 0L
+        sessionCompleteState.value = false
+        cueLineState.value = null
+        playerUiState.value = null
+    }
+
+    fun playerState(): WorkoutSessionState? = playerUiState.value
+    fun playerCueLine(): String? = cueLineState.value
+    fun sessionComplete() = sessionCompleteState.value
+    fun currentEngine(): WorkoutSessionEngine? = engine
+
+    fun bindCameraForPlayer(previewView: PreviewView) {
+        cameraController.start(
+            lifecycleOwner = this,
+            previewView = previewView,
+            onFrame = { imageProxy -> poseEstimator.estimate(imageProxy) { frame -> handlePlayerFrame(frame) } },
+        )
+    }
+
+    private fun handlePlayerFrame(frame: PoseFrame) {
+        val activeEngine = engine ?: return
+        val now = SystemClock.uptimeMillis()
+        val deltaMs = if (playerLastFrameMs == 0L) 0L else now - playerLastFrameMs
+        playerLastFrameMs = now
+
+        val step = activeEngine.currentStep()
+        val verdict: WarriorIIVerdict? = if (step?.poseId == "warrior_ii" && step.side != null) {
+            assessor.assess(frame, step.side)
+        } else {
+            null
+        }
+        val decision: CoachDecision? = verdict?.let { coachAgent.tick(it) }
+
+        val newState = activeEngine.tick(deltaMs, verdict, decision)
+
+        val line = when (decision?.intent) {
             CoachIntent.SPEAK_CUE -> CueTemplates.forIssue(decision.verdictCode!!, decision.escalation)
             CoachIntent.CONFIRM_IMPROVEMENT -> CueTemplates.forConfirmImprovement()
             CoachIntent.SAFETY_OVERRIDE -> CueTemplates.forSafetyOverride(decision.verdictCode!!)
-            CoachIntent.SILENT -> null
+            CoachIntent.SILENT, null -> null
         }
         line?.let { speechCoach.speak(it) }
-    }
 
-    private fun recordFrameForFps() {
-        frameCountInWindow++
-        val now = SystemClock.uptimeMillis()
-        if (fpsWindowStartMs == 0L) fpsWindowStartMs = now
-        if (now - fpsWindowStartMs >= 1000L) {
-            val fps = frameCountInWindow
-            runOnUiThread { fpsState.intValue = fps }
-            frameCountInWindow = 0
-            fpsWindowStartMs = now
+        runOnUiThread {
+            playerUiState.value = newState
+            if (line != null) cueLineState.value = line
+            if (newState.phase == SessionPhase.SUMMARY) {
+                pendingSummary = activeEngine.buildSummary()
+                sessionCompleteState.value = true
+            }
         }
     }
+
+    fun togglePause() {
+        val activeEngine = engine ?: return
+        val isPaused = playerUiState.value?.isPaused ?: false
+        if (isPaused) {
+            activeEngine.resume()
+            coachAgent.resume()
+        } else {
+            activeEngine.pause()
+            coachAgent.pause()
+        }
+    }
+
+    fun endWorkoutEarly(): SessionSummary {
+        val summary = engine?.endEarly() ?: SessionSummary(0L, emptyList(), null)
+        pendingSummary = summary
+        return summary
+    }
+
+    fun pendingSummary(): SessionSummary = pendingSummary ?: SessionSummary(0L, emptyList(), null)
 
     override fun onDestroy() {
         super.onDestroy()
@@ -182,40 +266,33 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun MiraNavHost(
+    activity: MainActivity,
     navController: NavHostController,
     contentRepository: ContentRepository,
     hasPermission: Boolean,
-    fps: Int,
     onGrantPermission: () -> Unit,
-    onPreviewViewReady: (PreviewView) -> Unit,
 ) {
     val context = LocalContext.current
 
     NavHost(navController = navController, startDestination = Routes.HOME) {
         composable(Routes.HOME) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                HomeScreen(
-                    greeting = "Good evening —\nready to unwind?",
-                    categories = contentRepository.categories,
-                    recommendedRoutines = contentRepository.routines,
-                    // No session history yet (Room lands in Phase 9) — see docs/PROGRESS.md.
-                    lastRoutine = null,
-                    onFreestyleClick = {
-                        Toast.makeText(context, "Freestyle isn't built yet — Phase 8", Toast.LENGTH_SHORT).show()
-                    },
-                    onContinueClick = { routine -> navController.navigate(Routes.routineDetail(routine.id)) },
-                    onCategoryClick = { category -> navController.navigate(Routes.category(category.id)) },
-                    onRoutineClick = { routine -> navController.navigate(Routes.routineDetail(routine.id)) },
-                )
-                TempCameraDemoButton(
-                    onClick = { navController.navigate(Routes.CAMERA_DEMO_TEMP) },
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(24.dp),
-                )
-            }
+            HomeScreen(
+                greeting = "Good evening —\nready to unwind?",
+                categories = contentRepository.categories,
+                recommendedRoutines = contentRepository.routines,
+                // No session history yet (Room lands in Phase 9) — see docs/PROGRESS.md.
+                lastRoutine = null,
+                onFreestyleClick = {
+                    Toast.makeText(context, "Freestyle isn't built yet — Phase 8", Toast.LENGTH_SHORT).show()
+                },
+                onContinueClick = { routine -> navController.navigate(Routes.routineDetail(routine.id)) },
+                onCategoryClick = { category -> navController.navigate(Routes.category(category.id)) },
+                onRoutineClick = { routine -> navController.navigate(Routes.routineDetail(routine.id)) },
+            )
         }
 
         composable(Routes.CATEGORY) { backStackEntry ->
-            val category = contentRepository.categoryById(requireCategoryId(backStackEntry))
+            val category = contentRepository.categoryById(requireArg(backStackEntry, "categoryId"))
             if (category != null) {
                 CategoryBrowseScreen(
                     category = category,
@@ -227,96 +304,110 @@ private fun MiraNavHost(
         }
 
         composable(Routes.ROUTINE_DETAIL) { backStackEntry ->
-            val routine = contentRepository.routineById(requireRoutineId(backStackEntry))
+            val routine = contentRepository.routineById(requireArg(backStackEntry, "routineId"))
             if (routine != null) {
                 RoutineDetailScreen(
                     routine = routine,
                     posesById = contentRepository.poses.associateBy { it.id },
                     onBackClick = { navController.popBackStack() },
-                    onStartWorkoutClick = { navController.navigate(Routes.SETUP_TIPS) },
+                    onStartWorkoutClick = { navController.navigate(Routes.setupTips(routine.id)) },
                 )
             }
         }
 
-        composable(Routes.SETUP_TIPS) {
+        composable(Routes.SETUP_TIPS) { backStackEntry ->
+            val routineId = requireArg(backStackEntry, "routineId")
             SetupTipsScreen(
                 onBackClick = { navController.popBackStack() },
                 onReadyClick = {
-                    Toast.makeText(
-                        context,
-                        "Framing Assistant + Player aren't built yet — Phase 6",
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    activity.resetFramingGate()
+                    navController.navigate(Routes.framing(routineId))
                 },
             )
         }
 
-        composable(Routes.CAMERA_DEMO_TEMP) {
-            Phase0Screen(
+        composable(Routes.FRAMING) { backStackEntry ->
+            val routineId = requireArg(backStackEntry, "routineId")
+            val routine = contentRepository.routineById(routineId)
+            var hasAdvanced by remember(routineId) { mutableStateOf(false) }
+            val confidence = activity.framingConfidence()
+            val isReady = activity.framingReady()
+
+            LaunchedEffect(isReady) {
+                if (isReady && !hasAdvanced && routine != null) {
+                    hasAdvanced = true
+                    activity.startWorkout(routine)
+                    navController.navigate(Routes.PLAYER) { popUpTo(Routes.HOME) }
+                }
+            }
+
+            FramingAssistantScreen(
                 hasPermission = hasPermission,
-                fps = fps,
+                confidence = confidence,
                 onGrantPermission = onGrantPermission,
-                onPreviewViewReady = onPreviewViewReady,
+                onPreviewViewReady = { previewView -> activity.bindCameraForFraming(previewView) },
+                onEndSession = { navController.popBackStack(Routes.HOME, inclusive = false) },
             )
         }
-    }
-}
 
-private fun requireCategoryId(backStackEntry: androidx.navigation.NavBackStackEntry): String =
-    backStackEntry.arguments?.getString("categoryId").orEmpty()
+        composable(Routes.PLAYER) {
+            val engine = activity.currentEngine()
+            val state = activity.playerState()
+            val cueLine = activity.playerCueLine()
+            val sessionComplete = activity.sessionComplete()
 
-private fun requireRoutineId(backStackEntry: androidx.navigation.NavBackStackEntry): String =
-    backStackEntry.arguments?.getString("routineId").orEmpty()
+            LaunchedEffect(sessionComplete) {
+                if (sessionComplete) {
+                    navController.navigate(Routes.SUMMARY) { popUpTo(Routes.HOME) }
+                }
+            }
 
-/**
- * TEMPORARY scaffolding (see [Routes] doc comment) — deliberately unstyled (plain Material
- * defaults, not [com.mira.miraai.ui.theme.MiraColors]) so it reads as debug tooling, not a
- * real product surface. Delete this composable and its call site once Phase 6 gives the app a
- * real entry into the coaching flow and this stops being the only way to see the camera demo.
- */
-@Composable
-private fun TempCameraDemoButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Red, contentColor = Color.White),
-        modifier = modifier,
-    ) {
-        Text("Camera Demo (temp)")
-    }
-}
-
-@Composable
-private fun Phase0Screen(
-    hasPermission: Boolean,
-    fps: Int,
-    onGrantPermission: () -> Unit,
-    onPreviewViewReady: (PreviewView) -> Unit,
-) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        if (hasPermission) {
-            AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = { ctx -> PreviewView(ctx).also { onPreviewViewReady(it) } },
-            )
-            Text(
-                text = "Phase 4 — real pipeline — $fps fps",
-                color = Color.White,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(16.dp)
-                    .background(Color.Black.copy(alpha = 0.5f))
-                    .padding(8.dp),
-            )
-        } else {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text("Mira needs camera access to see your pose.")
-                Spacer(Modifier.height(16.dp))
-                Button(onClick = onGrantPermission) { Text("Grant camera permission") }
+            if (engine == null) {
+                navController.popBackStack(Routes.HOME, inclusive = false)
+            } else {
+                val step = engine.currentStep()
+                val pose = contentRepository.poseById(step?.poseId.orEmpty())
+                WorkoutPlayerScreen(
+                    hasPermission = hasPermission,
+                    routineTitle = engine.routine.title,
+                    stepNumber = (state?.currentStepIndex ?: 0) + 1,
+                    totalSteps = engine.steps.size,
+                    poseDisplayName = pose?.displayName ?: step?.poseId.orEmpty(),
+                    sideLabel = step?.side?.let { if (it == Side.LEFT) "Left side" else "Right side" },
+                    targetHoldSec = step?.targetHoldSec ?: 0,
+                    elapsedHoldSec = state?.elapsedHoldSec ?: 0,
+                    confidenceScore = state?.confidenceScore ?: 1f,
+                    isPaused = state?.isPaused ?: false,
+                    isResting = state?.phase == SessionPhase.REST,
+                    restLabel = "Switch sides",
+                    cueCaption = cueLine,
+                    showConfidenceRecoveryBanner = (state?.confidenceScore ?: 1f) < CoachAgentThresholds.MIN_CONFIDENCE_TO_COACH,
+                    onGrantPermission = onGrantPermission,
+                    onPreviewViewReady = { previewView -> activity.bindCameraForPlayer(previewView) },
+                    onPauseToggle = { activity.togglePause() },
+                    onEndWorkoutClick = {
+                        activity.endWorkoutEarly()
+                        navController.navigate(Routes.SUMMARY) { popUpTo(Routes.HOME) }
+                    },
+                )
             }
         }
+
+        composable(Routes.SUMMARY) {
+            val summary = activity.pendingSummary()
+            val engine = activity.currentEngine()
+            SessionSummaryScreen(
+                routineTitle = engine?.routine?.title ?: "",
+                totalElapsedMs = summary.totalElapsedMs,
+                stepResults = summary.stepResults,
+                posesById = contentRepository.poses.associateBy { it.id },
+                nextFocusVerdict = summary.nextFocusVerdict,
+                onDoneClick = { navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } } },
+                onSeeWhatMiraLearnedClick = null, // Memory Graph is Phase 10 — no-op per this phase's instruction.
+            )
+        }
     }
 }
+
+private fun requireArg(backStackEntry: androidx.navigation.NavBackStackEntry, key: String): String =
+    backStackEntry.arguments?.getString(key).orEmpty()
