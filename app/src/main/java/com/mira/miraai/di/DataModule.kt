@@ -1,5 +1,6 @@
 package com.mira.miraai.di
 
+import com.mira.miraai.data.FactRepository
 import com.mira.miraai.data.MiraDatabase
 import com.mira.miraai.data.SessionRepository
 import org.koin.android.ext.koin.androidContext
@@ -12,4 +13,5 @@ import org.koin.dsl.module
 val dataModule = module {
     single { MiraDatabase.build(androidContext()) }
     single { SessionRepository(get()) }
+    single { FactRepository(get()) }
 }

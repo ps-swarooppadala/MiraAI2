@@ -47,6 +47,8 @@ import com.mira.miraai.agent.freestyle.AgentResponse
 import com.mira.miraai.agent.freestyle.FreestyleHarness
 import com.mira.miraai.agent.freestyle.SessionContext
 import com.mira.miraai.content.Routine
+import com.mira.miraai.data.FactRepository
+import com.mira.miraai.memory.Fact
 import com.mira.miraai.perception.BodyJoint
 import com.mira.miraai.perception.PoseEstimator
 import com.mira.miraai.perception.PoseFrame
@@ -56,6 +58,7 @@ import com.mira.miraai.ui.framing.FramingAssistantScreen
 import com.mira.miraai.ui.freestyle.FreestyleScreen
 import com.mira.miraai.ui.freestyle.OrbState
 import com.mira.miraai.ui.home.HomeScreen
+import com.mira.miraai.ui.memorygraph.MemoryGraphScreen
 import com.mira.miraai.ui.player.WorkoutPlayerScreen
 import com.mira.miraai.ui.routinedetail.RoutineDetailScreen
 import com.mira.miraai.ui.setup.SetupTipsScreen
@@ -67,6 +70,7 @@ import com.mira.miraai.voice.LLMProvider
 import com.mira.miraai.voice.STTProvider
 import com.mira.miraai.voice.TTSProvider
 import com.mira.miraai.voice.TTSShutdown
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -88,6 +92,7 @@ private object Routes {
     const val PLAYER = "player"
     const val SUMMARY = "summary"
     const val FREESTYLE = "freestyle"
+    const val MEMORY_GRAPH = "memoryGraph"
 
     fun category(id: String) = "category/$id"
     fun routineDetail(id: String) = "routineDetail/$id"
@@ -109,6 +114,7 @@ class MainActivity : ComponentActivity() {
     private val ttsProvider: TTSProvider by inject()
     private val llmProvider: LLMProvider by inject()
     private val sttProvider: STTProvider by inject()
+    private val factRepository: FactRepository by inject()
 
     private lateinit var cameraController: CameraXController
     private lateinit var contentRepository: ContentRepository
@@ -307,6 +313,8 @@ class MainActivity : ComponentActivity() {
     }
 
     fun pendingSummary(): SessionSummary = pendingSummary ?: SessionSummary(0L, emptyList(), null)
+
+    fun factRepository(): FactRepository = factRepository
 
     // --- Freestyle Conversation (US-8) ---
 
@@ -532,7 +540,15 @@ private fun MiraNavHost(
                 posesById = contentRepository.poses.associateBy { it.id },
                 nextFocusVerdict = summary.nextFocusVerdict,
                 onDoneClick = { navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } } },
-                onSeeWhatMiraLearnedClick = null, // Memory Graph is Phase 10 — no-op per this phase's instruction.
+                onSeeWhatMiraLearnedClick = { navController.navigate(Routes.MEMORY_GRAPH) },
+            )
+        }
+
+        composable(Routes.MEMORY_GRAPH) {
+            val facts by activity.factRepository().observeFacts().collectAsState(initial = emptyList<Fact>())
+            MemoryGraphScreen(
+                facts = facts,
+                onBackClick = { navController.popBackStack() },
             )
         }
     }
