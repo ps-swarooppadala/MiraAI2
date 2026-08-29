@@ -34,7 +34,7 @@ import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import com.mira.miraai.assessor.ElbowCheck
 import com.mira.miraai.assessor.Point2D
 import com.mira.miraai.capture.CameraXController
-import com.mira.miraai.perception.PoseEstimator
+import com.mira.miraai.perception.MediaPipePoseEstimator
 import com.mira.miraai.perception.PoseLandmarkIndex
 import com.mira.miraai.ui.theme.MiraAITheme
 import com.mira.miraai.voice.SpeechCoach
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var cameraController: CameraXController
     private lateinit var speechCoach: SpeechCoach
-    private var poseEstimator: PoseEstimator? = null
+    private var poseEstimator: MediaPipePoseEstimator? = null
 
     private var frameCountInWindow = 0
     private var fpsWindowStartMs = 0L
@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun bindCameraAndPipeline(previewView: PreviewView) {
-        poseEstimator = PoseEstimator(
+        poseEstimator = MediaPipePoseEstimator(
             context = this,
             isFrontCamera = true,
             onResult = { result -> handlePoseResult(result) },

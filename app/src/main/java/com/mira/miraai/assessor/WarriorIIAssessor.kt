@@ -1,5 +1,8 @@
 package com.mira.miraai.assessor
 
+import com.mira.miraai.perception.BodyJoint
+import com.mira.miraai.perception.PoseFrame
+import com.mira.miraai.perception.Side
 import kotlin.math.abs
 
 /** Single-frame Warrior II assessment result — feature-spec.md Section 10.1 Assessor contract. */

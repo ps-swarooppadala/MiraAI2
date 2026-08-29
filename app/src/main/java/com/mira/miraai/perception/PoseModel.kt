@@ -1,4 +1,6 @@
-package com.mira.miraai.assessor
+package com.mira.miraai.perception
+
+import com.mira.miraai.assessor.Point2D
 
 /** Named joints tracked by the Assessor layer — a minimal pure-Kotlin pose model. */
 enum class BodyJoint {

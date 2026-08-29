@@ -26,8 +26,18 @@
   - Confirm/escalation tracking treats safety cues as a separate track from regular issue cues (a safety interruption doesn't reset or advance the regular-issue persistence count). Not spec-mandated, just the simplest correct reading.
   - Routine sequencing, `WorkoutSessionState` wiring, and the Freestyle `ActionSchema` path are out of scope for Phase 2 — that's Phase 3+ (device abstraction) and Phase 8 (Freestyle) per the phase table.
 
+- **Phase 3: Device abstraction — interfaces + `devPhone`/`iqoo` flavors + DI modules.** Added the four interfaces from build-architecture.md Section 2 (`perception.PoseEstimator`, `voice.LLMProvider`, `voice.TTSProvider`, `voice.STTProvider`), a real `SystemTTSProvider` (Android `TextToSpeech`, both flavors — Piper is still Phase 7), and placeholder `StubLLMProvider`/`StubSTTProvider` (real classifier/ASR wiring is Phase 8). Added Gradle `flavorDimensions += "device"` with `devPhone`/`iqoo` product flavors, each with its own Koin module (`di/AiModule.kt`, one file per flavor source set, same FQN — only the pose delegate differs today: `Delegate.CPU` vs `Delegate.GPU`) wired up via a new `MiraApplication` that calls `startKoin`. Added `Fake*` implementations of all four interfaces (`perception.FakePoseEstimator`, `voice.FakeLLMProvider/FakeTTSProvider/FakeSTTProvider`) plus contract tests. 50/50 JUnit tests pass on both `testDevPhoneDebugUnitTest` and `testIqooDebugUnitTest`.
+
+  **Relocation done this phase (per Phase 1's note):** `PoseModel.kt` (`BodyJoint`/`Landmark`/`PoseFrame`/`Side`) moved from `assessor/` to `perception/`, since `PoseFrame` is now the interface's return type. `WarriorIIAssessor.kt`/`WarriorIIAssessorTest.kt` updated to import from `perception` — no other behavior changed.
+
+  **Known deviation, flagged not silently patched:** the concrete pose estimator (renamed `MediaPipePoseEstimator`, was `PoseEstimator`) does **not** implement the new `perception.PoseEstimator` interface. The interface is synchronous (`estimate(frame): PoseFrame`) per the spec doc; the concrete class uses MediaPipe's `LIVE_STREAM` mode (async, callback-based) because that's what Phase 0 measured 25-31 FPS with on-device. `MediaPipePoseEstimator` is bound in Koin only via its delegate config (`named("poseDelegate")`), not as the `PoseEstimator` interface. Reconciling this (async interface variant, or a synchronous adapter) is explicitly Phase 4's job when the camera pipeline gets rewired onto the Assessor — not Phase 3's, per CLAUDE.md's "do not re-architect completed phases."
+
+  **Minimal data-model types pulled forward, not full-featured:** `agent/freestyle/FreestyleTypes.kt` (`ActionSchema`, `AgentPrompt`, `AgentResponse`, `SessionContext`) and `memory/Fact.kt` were added now, ahead of their real phases (8 and 9/10), only because `LLMProvider.complete()` needs their shapes to compile. No classifier, repository, or consolidation logic exists yet — don't mistake these for Phase 8/10 being started early.
+
+  **Toolchain note:** `mockito-core`/`mockito-kotlin` versions in `libs.versions.toml` were pinned to 5.19.0/5.4.0 — older Mockito (5.14 and below) fails on this machine's JDK 25 (Byte Buddy doesn't support it) when mocking `ImageProxy` in `FakePoseEstimatorTest`. If tests fail with `ByteBuddy ... Java 25 ... not supported`, bump `mockitoCore` further rather than downgrading the JDK.
+
 ## In progress
 (none)
 
 ## Not started
-Everything else — see docs/build-architecture.md Section 7 phase table. Next: Phase 3 (Device abstraction: interfaces + `devPhone`/`iqoo` flavors + DI modules).
+Everything else — see docs/build-architecture.md Section 7 phase table. Next: Phase 4 (Real camera pipeline wired to Phase 1+2 on `devPhone`) — this is also where `MediaPipePoseEstimator`'s deviation from the `PoseEstimator` interface (above) should get resolved.

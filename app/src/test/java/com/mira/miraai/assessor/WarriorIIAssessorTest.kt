@@ -1,5 +1,9 @@
 package com.mira.miraai.assessor
 
+import com.mira.miraai.perception.BodyJoint
+import com.mira.miraai.perception.Landmark
+import com.mira.miraai.perception.PoseFrame
+import com.mira.miraai.perception.Side
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
