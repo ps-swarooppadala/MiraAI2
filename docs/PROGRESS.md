@@ -257,6 +257,20 @@
 
   **Not verified on-device by the agent** (no attached device/adb in this environment) — whoever has device access next should confirm the overlay visibly shows elbow bend, a neck/head outline, and a head-tilt line during a live session, and that the three new arm-straightness/head-tilt cues fire at reasonable moments rather than nagging on ordinary movement (thresholds are unvalidated placeholders).
 
+- **Overlay coloring redesigned per 2026-08-29 follow-up feedback: per-joint grey/green/orange/gold instead of one whole-skeleton color, nose reverted, and slow fades instead of abrupt cuts.** The prior entry's single `isGoodForm: Boolean` drove one color for the entire skeleton; the user asked for per-joint feedback instead (grey while unassessed, green on joints that are correct, orange on the ones actually at fault), a gold pulsating state with pulsating frame corners once the whole pose is correct, and a 3-second fade rather than a snap when the good pose breaks or tracking is lost. Also asked to revert the neck lines added to the nose landmark from the prior overlay expansion.
+
+  **Reverted:** `BodyJoint.NOSE` / `PoseLandmarkIndex.NOSE` and the two shoulder-to-nose "neck" lines removed entirely — elbow tracking and the ear-to-ear head-tilt line from the prior entry are kept.
+
+  **New: `ui/components/PoseIssueJoints.kt`** — a presentation-layer map from `VerdictCode` (+ the front/standing `Side`, null for symmetric Chair Pose) to the specific `BodyJoint`s responsible for that issue (e.g. `FRONT_KNEE_PAST_ANKLE` → front hip/knee/ankle only, not the whole body). Kept out of `assessor/` deliberately (CLAUDE.md bars Compose/Android-flavored concerns there; which joints to *color* is a UI decision, not a rule) — it only imports the existing pure-Kotlin `VerdictCode`/`BodyJoint`/`Side` types.
+
+  **`PoseOverlay` rewritten** to take `verdictCode`/`side` instead of a plain `isGoodForm` boolean. Per joint: grey when `verdictCode == null` (nothing assessed yet), gold when `verdictCode == GOOD_FORM`, orange when the joint is in that verdict's `PoseIssueJoints` set, green otherwise. Every joint's color is independently animated with `animateColorAsState(tween(3000))`, and lines between two differently-colored joints blend via a manual color lerp so a limb reads as transitioning, not hard-seamed. The overlay now also retains the last-seen `PoseFrame` and fades its overall presence out over the same 3s (`animateFloatAsState`) instead of vanishing the instant a frame comes back null, so losing tracking mid-pose fades out gracefully. The gold state pulsates (0.6–1.0 brightness, 900ms) using the same pulse language as the existing screen-edge glow.
+
+  **`WorkoutPlayerScreen`'s `GoldenFormGlow`** (the full-screen edge/corner glow) simplified from a green/gold hue-drifting version to gold-only, and its presence fade lengthened from 400ms to 3000ms (`GOLD_GLOW_FADE_MS`) to match the overlay's fade — the corners were already covered by this glow's border stroke, so no new corner-specific drawing was needed, just the color/timing change. `WorkoutPlayerScreen`/`MainActivity` now thread `verdictCode`/`poseSide` through instead of a precomputed `isGoodForm` boolean (`MainActivity.playerVerdictCode()` replaces `playerIsGoodForm()`).
+
+  63 assessor/voice tests + full suite pass unchanged on both flavors (this was a UI/presentation change, no assessor logic touched); `compileDevPhoneDebugKotlin`/`compileIqooDebugKotlin` build clean.
+
+  **Not verified on-device by the agent** (no attached device/adb in this environment) — whoever has device access next should confirm the grey→green/orange→gold progression reads clearly during a live pose attempt, the per-joint orange highlighting actually points at the right body part for a few different issues (not just Warrior II's knee), and the 3-second fade feels graceful rather than sluggish when stepping out of frame.
+
 ## In progress
 (none)
 

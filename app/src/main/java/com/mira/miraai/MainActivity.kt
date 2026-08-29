@@ -11,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,13 +33,17 @@ import com.mira.miraai.agent.CoachDecision
 import com.mira.miraai.agent.CoachIntent
 import com.mira.miraai.agent.FramingGate
 import com.mira.miraai.agent.FramingGateState
+import com.mira.miraai.agent.FramingReframeState
+import com.mira.miraai.agent.FramingZoomController
 import com.mira.miraai.agent.SessionPhase
 import com.mira.miraai.agent.SessionSummary
 import com.mira.miraai.agent.WorkoutSessionEngine
 import com.mira.miraai.agent.WorkoutSessionState
+import com.mira.miraai.assessor.ChairPoseAssessor
+import com.mira.miraai.assessor.TreePoseAssessor
+import com.mira.miraai.assessor.Verdict
 import com.mira.miraai.assessor.WarriorIIAssessor
 import com.mira.miraai.assessor.VerdictCode
-import com.mira.miraai.assessor.WarriorIIVerdict
 import com.mira.miraai.capture.CameraXController
 import com.mira.miraai.content.ContentRepository
 import com.mira.miraai.content.loadContentRepositoryFromAssets
@@ -121,9 +126,13 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var cameraController: CameraXController
     private lateinit var contentRepository: ContentRepository
-    private val assessor = WarriorIIAssessor()
+    private val warriorIIAssessor = WarriorIIAssessor()
+    private val treePoseAssessor = TreePoseAssessor()
+    private val chairPoseAssessor = ChairPoseAssessor()
     private var coachAgent = CoachAgent(clock = Clock { SystemClock.uptimeMillis() })
     private val framingGate = FramingGate()
+    private val framingZoomController = FramingZoomController()
+    private val playerZoomController = FramingZoomController()
     private val freestyleHarness by lazy { FreestyleHarness(llmProvider) }
 
     private val hasPermissionState = mutableStateOf(false)
@@ -140,6 +149,8 @@ class MainActivity : ComponentActivity() {
     private val framingConfidenceState = mutableFloatStateOf(0f)
     private val framingReadyState = mutableStateOf(false)
     private val framingPoseFrameState = mutableStateOf<PoseFrame?>(null)
+    private var framingReframeLevel = FramingReframeState()
+    private val framingReframeUiState = mutableStateOf(FramingReframeState())
 
     // --- Workout Mode Player state ---
     private var engine: WorkoutSessionEngine? = null
@@ -150,11 +161,21 @@ class MainActivity : ComponentActivity() {
     private var pendingSummary: SessionSummary? = null
     private val playerPoseFrameState = mutableStateOf<PoseFrame?>(null)
     private val playerAngleDegState = mutableFloatStateOf(Float.NaN)
-    private val playerIsGoodFormState = mutableStateOf(false)
+    private val playerVerdictCodeState = mutableStateOf<VerdictCode?>(null)
+    private var playerReframeLevel = FramingReframeState()
+    private val playerReframeUiState = mutableStateOf(FramingReframeState())
+
+    private val hasMicPermissionState = mutableStateOf(false)
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             hasPermissionState.value = granted
+        }
+
+    private val requestMicPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            hasMicPermissionState.value = granted
+            if (granted) sttProvider.startListening { transcript -> handleFreestyleTranscript(transcript) }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -167,10 +188,17 @@ class MainActivity : ComponentActivity() {
         hasPermissionState.value = ContextCompat.checkSelfPermission(
             this, Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
+        hasMicPermissionState.value = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
 
         setContent {
             MiraAITheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
+                // enableEdgeToEdge() draws behind the system bars, so without this the top bar
+                // and bottom controls on every screen (including the full-bleed camera stages)
+                // sit flush under the status bar / gesture nav — pad the whole nav host in from
+                // both edges per 2026-08-29 feedback ("app is taking from top to bottom").
+                Surface(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
                     val navController = rememberNavController()
                     MiraNavHost(
                         activity = this,
@@ -189,11 +217,14 @@ class MainActivity : ComponentActivity() {
         framingLastFrameMs = 0L
         framingConfidenceState.floatValue = 0f
         framingReadyState.value = false
+        framingReframeLevel = FramingReframeState()
+        framingReframeUiState.value = FramingReframeState()
     }
 
     fun framingConfidence() = framingConfidenceState.floatValue
     fun framingReady() = framingReadyState.value
     fun framingPoseFrame(): PoseFrame? = framingPoseFrameState.value
+    fun framingReframe(): FramingReframeState = framingReframeUiState.value
 
     fun bindCameraForFraming(previewView: PreviewView) {
         cameraController.start(
@@ -211,11 +242,13 @@ class MainActivity : ComponentActivity() {
         val visibilities = frame.landmarks.values.map { it.visibility }
         val confidence = if (visibilities.isEmpty()) 0f else visibilities.average().toFloat()
         framingGateState = framingGate.tick(framingGateState, confidence, deltaMs)
+        framingReframeLevel = framingZoomController.tick(framingReframeLevel, frame)
 
         runOnUiThread {
             framingConfidenceState.floatValue = confidence
             framingReadyState.value = framingGateState.isReady
             framingPoseFrameState.value = frame
+            framingReframeUiState.value = framingReframeLevel
         }
     }
 
@@ -228,7 +261,16 @@ class MainActivity : ComponentActivity() {
         playerUiState.value = null
         playerPoseFrameState.value = null
         playerAngleDegState.floatValue = Float.NaN
-        playerIsGoodFormState.value = false
+        playerVerdictCodeState.value = null
+        playerReframeLevel = FramingReframeState()
+        playerReframeUiState.value = FramingReframeState()
+
+        // Spoken opening line — without this the player starts silent and the first thing the
+        // user hears is a correction cue (or a false "can't see you"), which reads as Mira not
+        // greeting them at all. Flagged from 2026-08-29 on-device feedback.
+        val firstStep = engine?.currentStep()
+        val firstPoseName = contentRepository.poseById(firstStep?.poseId.orEmpty())?.displayName ?: "your first pose"
+        ttsProvider.speak("Let's begin. First up: $firstPoseName.", Lang.EN)
     }
 
     fun playerState(): WorkoutSessionState? = playerUiState.value
@@ -237,7 +279,8 @@ class MainActivity : ComponentActivity() {
     fun currentEngine(): WorkoutSessionEngine? = engine
     fun playerPoseFrame(): PoseFrame? = playerPoseFrameState.value
     fun playerAngleDeg(): Float? = playerAngleDegState.floatValue.takeUnless { it.isNaN() }
-    fun playerIsGoodForm(): Boolean = playerIsGoodFormState.value
+    fun playerVerdictCode(): VerdictCode? = playerVerdictCodeState.value
+    fun playerReframe(): FramingReframeState = playerReframeUiState.value
 
     fun bindCameraForPlayer(previewView: PreviewView) {
         cameraController.start(
@@ -255,9 +298,17 @@ class MainActivity : ComponentActivity() {
 
         val previousPhase = playerUiState.value?.phase
         val step = activeEngine.currentStep()
-        val isWarriorII = step?.poseId == "warrior_ii" && step.side != null
-        val verdict: WarriorIIVerdict? = if (isWarriorII) assessor.assess(frame, step!!.side!!) else null
-        val angleDeg: Float? = if (isWarriorII) assessor.frontKneeAngleDeg(frame, step!!.side!!) else null
+        val verdict: Verdict? = when (step?.poseId) {
+            "warrior_ii" -> step.side?.let { warriorIIAssessor.assess(frame, it) }
+            "tree_pose" -> step.side?.let { treePoseAssessor.assess(frame, it) }
+            "chair_pose" -> chairPoseAssessor.assess(frame)
+            else -> null
+        }
+        val angleDeg: Float? = if (step?.poseId == "warrior_ii" && step.side != null) {
+            warriorIIAssessor.frontKneeAngleDeg(frame, step.side)
+        } else {
+            null
+        }
         val decision: CoachDecision? = verdict?.let { coachAgent.tick(it) }
 
         val newState = activeEngine.tick(deltaMs, verdict, decision)
@@ -282,13 +333,14 @@ class MainActivity : ComponentActivity() {
             )
         }
 
-        val isGoodForm = verdict?.verdictCode == VerdictCode.GOOD_FORM
+        playerReframeLevel = playerZoomController.tick(playerReframeLevel, frame)
 
         runOnUiThread {
             playerUiState.value = newState
             playerPoseFrameState.value = frame
             playerAngleDegState.floatValue = angleDeg ?: Float.NaN
-            playerIsGoodFormState.value = isGoodForm
+            playerVerdictCodeState.value = verdict?.verdictCode
+            playerReframeUiState.value = playerReframeLevel
             if (line != null) cueLineState.value = line
             if (newState.phase == SessionPhase.SUMMARY) {
                 pendingSummary = activeEngine.buildSummary()
@@ -336,8 +388,18 @@ class MainActivity : ComponentActivity() {
         freestyleResolvedRoutineState.value = null
     }
 
+    fun stopFreestyleListening() {
+        sttProvider.stopListening()
+    }
+
     fun toggleFreestyleMicMute() {
-        freestyleMicMutedState.value = !freestyleMicMutedState.value
+        val muted = !freestyleMicMutedState.value
+        freestyleMicMutedState.value = muted
+        if (muted) {
+            sttProvider.stopListening()
+        } else if (hasMicPermissionState.value) {
+            sttProvider.startListening { transcript -> handleFreestyleTranscript(transcript) }
+        }
     }
 
     /**
@@ -355,7 +417,11 @@ class MainActivity : ComponentActivity() {
         freestyleOrbState.value = OrbState.SPEAKING
         ttsProvider.speak(greeting, Lang.EN)
         freestyleOrbState.value = OrbState.LISTENING
-        sttProvider.startListening { transcript -> handleFreestyleTranscript(transcript) }
+        if (hasMicPermissionState.value) {
+            sttProvider.startListening { transcript -> handleFreestyleTranscript(transcript) }
+        } else {
+            requestMicPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
     }
 
     private fun handleFreestyleTranscript(transcript: String) {
@@ -374,6 +440,11 @@ class MainActivity : ComponentActivity() {
                 }
                 else -> {
                     freestyleOrbState.value = OrbState.LISTENING
+                    // Android's SpeechRecognizer ends its session after one utterance (see
+                    // SystemSTTProvider's class doc) — re-arm it for the next conversational turn.
+                    if (!freestyleMicMutedState.value && hasMicPermissionState.value) {
+                        sttProvider.startListening { nextTranscript -> handleFreestyleTranscript(nextTranscript) }
+                    }
                 }
             }
         }
@@ -382,6 +453,7 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         (ttsProvider as? TTSShutdown)?.shutdown()
+        sttProvider.stopListening()
         cameraController.shutdown()
     }
 }
@@ -466,6 +538,7 @@ private fun MiraNavHost(
                 hasPermission = hasPermission,
                 confidence = confidence,
                 poseFrame = activity.framingPoseFrame(),
+                reframe = activity.framingReframe(),
                 onGrantPermission = onGrantPermission,
                 onPreviewViewReady = { previewView -> activity.bindCameraForFraming(previewView) },
                 onEndSession = { navController.popBackStack(Routes.HOME, inclusive = false) },
@@ -494,6 +567,7 @@ private fun MiraNavHost(
                     routineTitle = engine.routine.title,
                     stepNumber = (state?.currentStepIndex ?: 0) + 1,
                     totalSteps = engine.steps.size,
+                    poseId = step?.poseId.orEmpty(),
                     poseDisplayName = pose?.displayName ?: step?.poseId.orEmpty(),
                     sideLabel = step?.side?.let { if (it == Side.LEFT) "Left side" else "Right side" },
                     targetHoldSec = step?.targetHoldSec ?: 0,
@@ -507,7 +581,9 @@ private fun MiraNavHost(
                     poseFrame = activity.playerPoseFrame(),
                     highlightJoint = frontKneeJointFor(step),
                     currentAngleDeg = activity.playerAngleDeg(),
-                    isGoodForm = activity.playerIsGoodForm(),
+                    verdictCode = activity.playerVerdictCode(),
+                    poseSide = step?.side,
+                    reframe = activity.playerReframe(),
                     onGrantPermission = onGrantPermission,
                     onPreviewViewReady = { previewView -> activity.bindCameraForPlayer(previewView) },
                     onPauseToggle = { activity.togglePause() },
@@ -526,6 +602,7 @@ private fun MiraNavHost(
             // does — it does not skip the Framing gate.
             LaunchedEffect(resolvedRoutine) {
                 if (resolvedRoutine != null) {
+                    activity.stopFreestyleListening()
                     activity.clearFreestyleResolvedRoutine()
                     navController.navigate(Routes.setupTips(resolvedRoutine.id))
                 }
@@ -536,7 +613,10 @@ private fun MiraNavHost(
                 orbState = activity.freestyleOrb(),
                 isMicMuted = activity.freestyleMicMuted(),
                 onMicMuteToggle = { activity.toggleFreestyleMicMute() },
-                onBackClick = { navController.popBackStack(Routes.HOME, inclusive = false) },
+                onBackClick = {
+                    activity.stopFreestyleListening()
+                    navController.popBackStack(Routes.HOME, inclusive = false)
+                },
             )
         }
 

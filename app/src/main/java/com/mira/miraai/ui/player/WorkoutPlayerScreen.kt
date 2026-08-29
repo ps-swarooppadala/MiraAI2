@@ -1,7 +1,12 @@
 package com.mira.miraai.ui.player
 
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
@@ -41,13 +47,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.foundation.Canvas
+import com.mira.miraai.agent.FramingReframeState
+import com.mira.miraai.assessor.VerdictCode
 import com.mira.miraai.perception.BodyJoint
 import com.mira.miraai.perception.PoseFrame
+import com.mira.miraai.perception.Side
 import com.mira.miraai.ui.components.PoseOverlay
 import com.mira.miraai.ui.components.PoseReferenceDiagram
+import com.mira.miraai.ui.components.ReframedCameraStage
 import com.mira.miraai.ui.theme.MiraColors
 import com.mira.miraai.ui.theme.MiraSpacing
 import com.mira.miraai.ui.theme.MiraType
+
+/** How long the golden celebration glow takes to fade in/out — slow on purpose (2026-08-29
+ *  feedback: losing the pose shouldn't snap the glow away abruptly). */
+private const val GOLD_GLOW_FADE_MS = 3000
 
 /**
  * Workout Mode Player — US-6 / feature-spec.md Section 8.1's layout, top to bottom: top bar
@@ -66,6 +80,7 @@ fun WorkoutPlayerScreen(
     routineTitle: String,
     stepNumber: Int,
     totalSteps: Int,
+    poseId: String,
     poseDisplayName: String,
     sideLabel: String?,
     targetHoldSec: Int,
@@ -79,7 +94,9 @@ fun WorkoutPlayerScreen(
     poseFrame: PoseFrame? = null,
     highlightJoint: BodyJoint? = null,
     currentAngleDeg: Float? = null,
-    isGoodForm: Boolean = false,
+    verdictCode: VerdictCode? = null,
+    poseSide: Side? = null,
+    reframe: FramingReframeState = FramingReframeState(),
     onGrantPermission: () -> Unit,
     onPreviewViewReady: (PreviewView) -> Unit,
     onPauseToggle: () -> Unit,
@@ -93,20 +110,27 @@ fun WorkoutPlayerScreen(
         onDispose { view.keepScreenOn = false }
     }
 
+    val isGoodForm = verdictCode == VerdictCode.GOOD_FORM
+
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         if (hasPermission) {
-            AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = { ctx -> PreviewView(ctx).also { onPreviewViewReady(it) } },
-            )
-            PoseOverlay(
-                frame = poseFrame,
-                highlightJoint = highlightJoint,
-                angleDeg = currentAngleDeg,
-                modifier = Modifier.fillMaxSize(),
-            )
+            ReframedCameraStage(reframe = reframe, modifier = Modifier.fillMaxSize()) {
+                AndroidView(
+                    modifier = Modifier.fillMaxSize(),
+                    factory = { ctx -> PreviewView(ctx).also { onPreviewViewReady(it) } },
+                )
+                PoseOverlay(
+                    frame = poseFrame,
+                    highlightJoint = highlightJoint,
+                    angleDeg = currentAngleDeg,
+                    verdictCode = verdictCode,
+                    side = poseSide,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
             if (poseDisplayName.isNotBlank()) {
                 PoseReferenceDiagram(
+                    poseId = poseId,
                     poseDisplayName = poseDisplayName,
                     modifier = Modifier
                         .padding(top = 72.dp, end = MiraSpacing.containerPadding)
@@ -230,26 +254,46 @@ private fun RestOverlay(restLabel: String?) {
 }
 
 /**
- * Golden hue over the camera stage while the user's form is assessed as good (`GOOD_FORM`) — a
- * "you've got it, hold there" visual cue that doesn't rely on the spoken confirmation alone.
- * Fades in/out rather than snapping so it doesn't flicker on single-frame verdict noise.
+ * Full-screen "you've got it" celebration when form is correct — a pulsing gold glow around the
+ * entire camera stage (including its corners), not just a subtle wash. Presence fades in/out over
+ * [GOLD_GLOW_FADE_MS] rather than snapping, so losing the pose reads as a graceful fade instead of
+ * an abrupt cut (2026-08-29 feedback) — gold-only per the same feedback, replacing the earlier
+ * green/gold hue-drifting version.
  */
 @Composable
 private fun GoldenFormGlow(visible: Boolean, modifier: Modifier = Modifier) {
-    val alpha by animateFloatAsState(targetValue = if (visible) 1f else 0f, animationSpec = tween(400), label = "goldenGlowAlpha")
-    if (alpha <= 0f) return
+    val presence by animateFloatAsState(targetValue = if (visible) 1f else 0f, animationSpec = tween(GOLD_GLOW_FADE_MS), label = "goldenGlowPresence")
+    if (presence <= 0f) return
 
-    val gold = Color(0xFFE6BE8A)
-    Box(
-        modifier = modifier
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(gold.copy(alpha = 0.28f * alpha), Color.Transparent),
-                    radius = 900f,
-                ),
-            )
-            .border(width = 4.dp, color = gold.copy(alpha = 0.8f * alpha)),
+    val infiniteTransition = rememberInfiniteTransition(label = "goldenGlowPulse")
+    val pulse by infiniteTransition.animateFloat(
+        initialValue = 0.6f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(animation = tween(900, easing = LinearEasing), repeatMode = RepeatMode.Reverse),
+        label = "goldenGlowPulseValue",
     )
+
+    val goldA = Color(0xFFFFD966)
+    val goldB = Color(0xFFFFB84D)
+    val gold = lerp(goldA, goldB, pulse)
+    val alpha = presence * pulse
+
+    Canvas(modifier = modifier) {
+        // Layered edge glow — a soft radial wash plus a thicker gradient ring right at the
+        // border (and therefore the corners), so it reads as a glowing outline around the whole
+        // frame, not just a tint.
+        drawRect(
+            brush = Brush.radialGradient(
+                colors = listOf(Color.Transparent, gold.copy(alpha = 0.10f * alpha), gold.copy(alpha = 0.20f * alpha)),
+                center = center,
+                radius = size.maxDimension * 0.75f,
+            ),
+        )
+        drawRect(
+            color = gold.copy(alpha = 0.9f * alpha),
+            style = Stroke(width = (10.dp.toPx()) * (0.6f + 0.4f * pulse)),
+        )
+    }
 }
 
 @Composable
@@ -319,6 +363,7 @@ private fun WorkoutPlayerScreenPreview() {
         routineTitle = "Foundations",
         stepNumber = 1,
         totalSteps = 4,
+        poseId = "warrior_ii",
         poseDisplayName = "Warrior II",
         sideLabel = "Left side",
         targetHoldSec = 20,

@@ -10,7 +10,7 @@ enum class BodyJoint {
     LEFT_HIP, RIGHT_HIP,
     LEFT_KNEE, RIGHT_KNEE,
     LEFT_ANKLE, RIGHT_ANKLE,
-    NOSE, LEFT_EAR, RIGHT_EAR,
+    LEFT_EAR, RIGHT_EAR,
 }
 
 /** A single tracked point plus MediaPipe-style visibility/presence confidence (0..1). */
