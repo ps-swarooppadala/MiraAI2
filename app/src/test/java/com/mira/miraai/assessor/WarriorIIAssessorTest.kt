@@ -61,6 +61,21 @@ class WarriorIIAssessorTest {
 
     private fun Map<BodyJoint, Landmark>.with(vararg overrides: Pair<BodyJoint, Landmark>) = this + overrides
 
+    // --- frontKneeAngleDeg: overlay support (feature-spec.md F11) ---
+
+    @Test
+    fun frontKneeAngleDeg_returnsTargetAngle_forTextbookPose() {
+        val angle = assessor.frontKneeAngleDeg(frame(baseline(Side.LEFT)), Side.LEFT)
+        assertEquals(90f, angle!!, 0.5f)
+    }
+
+    @Test
+    fun frontKneeAngleDeg_returnsNull_whenKneeLandmarkMissing() {
+        val landmarks = baseline(Side.LEFT) - BodyJoint.LEFT_KNEE
+        val angle = assessor.frontKneeAngleDeg(frame(landmarks), Side.LEFT)
+        assertEquals(null, angle)
+    }
+
     @Test
     fun assess_returnsGoodForm_whenTextbookPoseWithLeftFrontLeg() {
         val verdict = assessor.assess(frame(baseline(Side.LEFT)), Side.LEFT)

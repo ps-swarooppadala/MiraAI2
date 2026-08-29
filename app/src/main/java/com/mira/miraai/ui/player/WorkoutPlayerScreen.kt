@@ -34,6 +34,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.foundation.Canvas
+import com.mira.miraai.perception.BodyJoint
+import com.mira.miraai.perception.PoseFrame
+import com.mira.miraai.ui.components.PoseOverlay
 import com.mira.miraai.ui.theme.MiraColors
 import com.mira.miraai.ui.theme.MiraSpacing
 import com.mira.miraai.ui.theme.MiraType
@@ -65,6 +68,9 @@ fun WorkoutPlayerScreen(
     restLabel: String?,
     cueCaption: String?,
     showConfidenceRecoveryBanner: Boolean,
+    poseFrame: PoseFrame? = null,
+    highlightJoint: BodyJoint? = null,
+    currentAngleDeg: Float? = null,
     onGrantPermission: () -> Unit,
     onPreviewViewReady: (PreviewView) -> Unit,
     onPauseToggle: () -> Unit,
@@ -75,6 +81,12 @@ fun WorkoutPlayerScreen(
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx -> PreviewView(ctx).also { onPreviewViewReady(it) } },
+            )
+            PoseOverlay(
+                frame = poseFrame,
+                highlightJoint = highlightJoint,
+                angleDeg = currentAngleDeg,
+                modifier = Modifier.fillMaxSize(),
             )
         } else {
             Column(

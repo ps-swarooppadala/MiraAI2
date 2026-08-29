@@ -73,6 +73,18 @@ class WarriorIIAssessor {
         return WarriorIIVerdict(verdictCode, hasCriticalIssue = verdictCode in criticalCodes, confidence = confidence)
     }
 
+    /**
+     * The front-knee angle alone, for the live overlay (feature-spec.md F11) — the one joint
+     * angle the overlay highlights while Warrior II is being assessed. Returns null when the
+     * required landmarks aren't present, same visibility contract as [assess].
+     */
+    fun frontKneeAngleDeg(frame: PoseFrame, frontLeg: Side): Float? {
+        val hip = frame.landmark(hipJoint(frontLeg)) ?: return null
+        val knee = frame.landmark(kneeJoint(frontLeg)) ?: return null
+        val ankle = frame.landmark(ankleJoint(frontLeg)) ?: return null
+        return angleDegrees(hip.position, knee.position, ankle.position)
+    }
+
     private fun keyJoints(frontLeg: Side, backLeg: Side) = listOf(
         hipJoint(frontLeg), kneeJoint(frontLeg), ankleJoint(frontLeg),
         hipJoint(backLeg), kneeJoint(backLeg), ankleJoint(backLeg),

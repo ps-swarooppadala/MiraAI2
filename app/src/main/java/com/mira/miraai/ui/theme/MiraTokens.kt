@@ -25,6 +25,8 @@ object MiraColors {
     val tertiary = Color(0xFF735C00)
     val tertiaryContainer = Color(0xFFCBA72F)
     val softGold = Color(0xFFE6BE8A)
+    /** [color.accent] — Warm terracotta, feature-spec.md Section 7: "Progress rings, highlights, rep counter." */
+    val accent = Color(0xFFE08E5B)
 
     val background = Color(0xFFF1FCF7)
     val surface = Color(0xFFF1FCF7)

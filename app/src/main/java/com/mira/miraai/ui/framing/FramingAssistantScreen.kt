@@ -33,6 +33,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.mira.miraai.agent.WorkoutThresholds
+import com.mira.miraai.perception.PoseFrame
+import com.mira.miraai.ui.components.PoseOverlay
 import com.mira.miraai.ui.theme.MiraColors
 import com.mira.miraai.ui.theme.MiraSpacing
 import com.mira.miraai.ui.theme.MiraType
@@ -48,6 +50,7 @@ import com.mira.miraai.ui.theme.MiraType
 fun FramingAssistantScreen(
     hasPermission: Boolean,
     confidence: Float,
+    poseFrame: PoseFrame? = null,
     onGrantPermission: () -> Unit,
     onPreviewViewReady: (PreviewView) -> Unit,
     onEndSession: () -> Unit,
@@ -60,6 +63,7 @@ fun FramingAssistantScreen(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx -> PreviewView(ctx).also { onPreviewViewReady(it) } },
             )
+            PoseOverlay(frame = poseFrame, modifier = Modifier.fillMaxSize())
         }
         Box(
             modifier = Modifier

@@ -5,14 +5,14 @@
       "title": "Full Body",
       "subtitle": "Standing strength & balance",
       "icon": "ic_placeholder",
-      "routineIds": ["foundations_full_body"]
+      "routineIds": ["foundations_full_body", "warrior_ii_quick_practice"]
     },
     {
       "id": "legs_balance",
       "title": "Legs & Balance",
       "subtitle": "Hips, knees, ankles, stability",
       "icon": "ic_placeholder",
-      "routineIds": ["foundations_full_body"]
+      "routineIds": ["foundations_full_body", "warrior_ii_quick_practice"]
     },
     {
       "id": "neck_shoulders",
@@ -48,6 +48,17 @@
         { "poseId": "warrior_ii", "side": "BOTH", "targetHoldSec": 20, "targetReps": null, "order": 1 },
         { "poseId": "tree_pose", "side": "BOTH", "targetHoldSec": 15, "targetReps": null, "order": 2 },
         { "poseId": "chair_pose", "side": "NONE", "targetHoldSec": 20, "targetReps": 2, "order": 3 }
+      ]
+    },
+    {
+      "id": "warrior_ii_quick_practice",
+      "title": "Warrior II — Quick Practice",
+      "categoryIds": ["full_body", "legs_balance"],
+      "level": "BEGINNER",
+      "estimatedDurationSec": 60,
+      "coverImage": "ic_placeholder",
+      "poseSequence": [
+        { "poseId": "warrior_ii", "side": "BOTH", "targetHoldSec": 20, "targetReps": null, "order": 1 }
       ]
     }
   ],

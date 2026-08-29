@@ -42,6 +42,8 @@ import com.mira.miraai.assessor.WarriorIIVerdict
 import com.mira.miraai.capture.CameraXController
 import com.mira.miraai.content.ContentRepository
 import com.mira.miraai.content.loadContentRepositoryFromAssets
+import com.mira.miraai.agent.ExpandedStep
+import com.mira.miraai.perception.BodyJoint
 import com.mira.miraai.perception.PoseEstimator
 import com.mira.miraai.perception.PoseFrame
 import com.mira.miraai.perception.Side
@@ -106,6 +108,7 @@ class MainActivity : ComponentActivity() {
     private var framingLastFrameMs = 0L
     private val framingConfidenceState = mutableFloatStateOf(0f)
     private val framingReadyState = mutableStateOf(false)
+    private val framingPoseFrameState = mutableStateOf<PoseFrame?>(null)
 
     // --- Workout Mode Player state ---
     private var engine: WorkoutSessionEngine? = null
@@ -114,6 +117,8 @@ class MainActivity : ComponentActivity() {
     private val cueLineState = mutableStateOf<String?>(null)
     private val sessionCompleteState = mutableStateOf(false)
     private var pendingSummary: SessionSummary? = null
+    private val playerPoseFrameState = mutableStateOf<PoseFrame?>(null)
+    private val playerAngleDegState = mutableFloatStateOf(Float.NaN)
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -157,6 +162,7 @@ class MainActivity : ComponentActivity() {
 
     fun framingConfidence() = framingConfidenceState.floatValue
     fun framingReady() = framingReadyState.value
+    fun framingPoseFrame(): PoseFrame? = framingPoseFrameState.value
 
     fun bindCameraForFraming(previewView: PreviewView) {
         cameraController.start(
@@ -178,6 +184,7 @@ class MainActivity : ComponentActivity() {
         runOnUiThread {
             framingConfidenceState.floatValue = confidence
             framingReadyState.value = framingGateState.isReady
+            framingPoseFrameState.value = frame
         }
     }
 
@@ -188,12 +195,16 @@ class MainActivity : ComponentActivity() {
         sessionCompleteState.value = false
         cueLineState.value = null
         playerUiState.value = null
+        playerPoseFrameState.value = null
+        playerAngleDegState.floatValue = Float.NaN
     }
 
     fun playerState(): WorkoutSessionState? = playerUiState.value
     fun playerCueLine(): String? = cueLineState.value
     fun sessionComplete() = sessionCompleteState.value
     fun currentEngine(): WorkoutSessionEngine? = engine
+    fun playerPoseFrame(): PoseFrame? = playerPoseFrameState.value
+    fun playerAngleDeg(): Float? = playerAngleDegState.floatValue.takeUnless { it.isNaN() }
 
     fun bindCameraForPlayer(previewView: PreviewView) {
         cameraController.start(
@@ -210,11 +221,9 @@ class MainActivity : ComponentActivity() {
         playerLastFrameMs = now
 
         val step = activeEngine.currentStep()
-        val verdict: WarriorIIVerdict? = if (step?.poseId == "warrior_ii" && step.side != null) {
-            assessor.assess(frame, step.side)
-        } else {
-            null
-        }
+        val isWarriorII = step?.poseId == "warrior_ii" && step.side != null
+        val verdict: WarriorIIVerdict? = if (isWarriorII) assessor.assess(frame, step!!.side!!) else null
+        val angleDeg: Float? = if (isWarriorII) assessor.frontKneeAngleDeg(frame, step!!.side!!) else null
         val decision: CoachDecision? = verdict?.let { coachAgent.tick(it) }
 
         val newState = activeEngine.tick(deltaMs, verdict, decision)
@@ -229,6 +238,8 @@ class MainActivity : ComponentActivity() {
 
         runOnUiThread {
             playerUiState.value = newState
+            playerPoseFrameState.value = frame
+            playerAngleDegState.floatValue = angleDeg ?: Float.NaN
             if (line != null) cueLineState.value = line
             if (newState.phase == SessionPhase.SUMMARY) {
                 pendingSummary = activeEngine.buildSummary()
@@ -344,6 +355,7 @@ private fun MiraNavHost(
             FramingAssistantScreen(
                 hasPermission = hasPermission,
                 confidence = confidence,
+                poseFrame = activity.framingPoseFrame(),
                 onGrantPermission = onGrantPermission,
                 onPreviewViewReady = { previewView -> activity.bindCameraForFraming(previewView) },
                 onEndSession = { navController.popBackStack(Routes.HOME, inclusive = false) },
@@ -382,6 +394,9 @@ private fun MiraNavHost(
                     restLabel = "Switch sides",
                     cueCaption = cueLine,
                     showConfidenceRecoveryBanner = (state?.confidenceScore ?: 1f) < CoachAgentThresholds.MIN_CONFIDENCE_TO_COACH,
+                    poseFrame = activity.playerPoseFrame(),
+                    highlightJoint = frontKneeJointFor(step),
+                    currentAngleDeg = activity.playerAngleDeg(),
                     onGrantPermission = onGrantPermission,
                     onPreviewViewReady = { previewView -> activity.bindCameraForPlayer(previewView) },
                     onPauseToggle = { activity.togglePause() },
@@ -411,3 +426,13 @@ private fun MiraNavHost(
 
 private fun requireArg(backStackEntry: androidx.navigation.NavBackStackEntry, key: String): String =
     backStackEntry.arguments?.getString(key).orEmpty()
+
+/** The joint the overlay highlights while a step is being live-assessed — only Warrior II's front knee today. */
+private fun frontKneeJointFor(step: ExpandedStep?): BodyJoint? {
+    if (step?.poseId != "warrior_ii") return null
+    return when (step.side) {
+        Side.LEFT -> BodyJoint.LEFT_KNEE
+        Side.RIGHT -> BodyJoint.RIGHT_KNEE
+        null -> null
+    }
+}
