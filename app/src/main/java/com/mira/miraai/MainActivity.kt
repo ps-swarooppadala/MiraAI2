@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.SystemClock
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -48,6 +49,7 @@ import com.mira.miraai.agent.freestyle.FreestyleHarness
 import com.mira.miraai.agent.freestyle.SessionContext
 import com.mira.miraai.content.Routine
 import com.mira.miraai.data.FactRepository
+import com.mira.miraai.data.MemoryExportWriter
 import com.mira.miraai.memory.Fact
 import com.mira.miraai.perception.BodyJoint
 import com.mira.miraai.perception.PoseEstimator
@@ -115,6 +117,7 @@ class MainActivity : ComponentActivity() {
     private val llmProvider: LLMProvider by inject()
     private val sttProvider: STTProvider by inject()
     private val factRepository: FactRepository by inject()
+    private val memoryExportWriter: MemoryExportWriter by inject()
 
     private lateinit var cameraController: CameraXController
     private lateinit var contentRepository: ContentRepository
@@ -315,6 +318,13 @@ class MainActivity : ComponentActivity() {
     fun pendingSummary(): SessionSummary = pendingSummary ?: SessionSummary(0L, emptyList(), null)
 
     fun factRepository(): FactRepository = factRepository
+
+    fun exportMemory() {
+        lifecycleScope.launch {
+            val file = memoryExportWriter.exportToFile()
+            Toast.makeText(this@MainActivity, "Memory exported to ${file.absolutePath}", Toast.LENGTH_LONG).show()
+        }
+    }
 
     // --- Freestyle Conversation (US-8) ---
 
@@ -549,6 +559,7 @@ private fun MiraNavHost(
             MemoryGraphScreen(
                 facts = facts,
                 onBackClick = { navController.popBackStack() },
+                onExportClick = { activity.exportMemory() },
             )
         }
     }

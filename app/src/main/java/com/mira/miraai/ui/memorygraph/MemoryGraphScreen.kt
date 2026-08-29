@@ -60,6 +60,7 @@ private const val MIN_FACTS_FOR_GRAPH = 3
 fun MemoryGraphScreen(
     facts: List<Fact>,
     onBackClick: () -> Unit,
+    onExportClick: (() -> Unit)? = null,
 ) {
     Column(
         modifier = Modifier
@@ -89,6 +90,32 @@ fun MemoryGraphScreen(
         } else {
             FactGraph(facts)
         }
+
+        if (onExportClick != null && facts.isNotEmpty()) {
+            Spacer(Modifier.height(MiraSpacing.stackMd))
+            ExportMemoryButton(onClick = onExportClick)
+        }
+    }
+}
+
+/**
+ * build-architecture.md Section 5's JSON-export fallback trigger — dumps [Fact] rows to a file
+ * a laptop script can render offline. The primary embedded-server + live D3 page is a later
+ * polish layer, not built this phase.
+ */
+@Composable
+private fun ExportMemoryButton(onClick: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(MiraRadius.card))
+            .background(MiraColors.surfaceContainerLowest)
+            .clickable(onClick = onClick)
+            .padding(MiraSpacing.stackMd),
+    ) {
+        Text(text = "Export memory", style = MiraType.labelMd, color = MiraColors.primary)
     }
 }
 
